@@ -15,7 +15,7 @@
 - **?**  caractere opcional (antes do sinal)
 - *****  ocorrências em sequência de forma opcional
 - **.**  caractere qualquer (exceto quebra de linha)
-- **\**  escapa um caractere especial
+- **\**  escapa um caractere especial   
 - **\w**  qualquer caractere alfanumérico
 - **\d**  qualquer caractere numérico (0–9)
 - **\s**  espaços
@@ -47,5 +47,24 @@ OU
 ele pegaria o "m" por que vem antes do espaço. */
 
 function PhoneNumber (number) {
-    let fixedString = number.replace(/(?=\+)/)
+    /* Usamos o replace aqui, primeiro estamos definindo uma regra "[]" após isso excluimos todos os espaços "\s", em seguida excluimos todos
+    os caracteres que não sejam decimais no caso letras minusculas de "a-z" e letras maiusculas de "A-Z", e em seguir o valor que substituimos
+    e por nada, no caso substituimos esses caracteres por nada "" */
+    let fixedString = number.replace(/[\sa-zA-Z]/g, "");
+
+    /*Vamos pegar primeiro o código do pais, nesse caso estamos acessando o look behind "(?<=)" estamos dizendo, olhe para tras do caracter "\+"
+    e procure por mais de um digito "\d+" que são no caso os dois numeros que precedem o sinal de + e pegamos na posição "[0]", por que o match
+    devolve uma array, com algums elementos, mas somente o primeiro elemento e o caracter formatado */
+    this.countryCode = fixedString.match(/(?<=\+)\d+/g)[0];
+
+    /* Agora vamos pegar o ddd, estamos dizendo, encontre qualquer digito ou mais "\d+" que venha depois de um inicio de parenteses "(?<=\())",
+    após os números, olhe para frente e encontre o parentese fechado "(?=\))" */
+    this.ddd = fixedString.match(/(?<=\()\d+(?=\))/g)[0];
+
+    /* Aqui vamos apenas pegar o restante do número completo, olhe para trás "(?<=\)" do caracter ")" e pegue qualquer caracter em sequencia que
+    venha após ele, depois usamos o método replace para retirar o traço da string, usamos o replace, pegamos o "-" e substituimos por nada */
+    this.number = fixedString.match(/(?<=\)).+/g)[0].replace(/-/g, "");
 }
+
+console.log(new PhoneNumber('+55 (22) 9 9876-5432'));
+console.log(new PhoneNumber('+1 (555) a555-999-8888'));
