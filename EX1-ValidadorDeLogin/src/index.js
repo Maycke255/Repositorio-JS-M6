@@ -21,5 +21,52 @@ As validação devem ser escritas em funções separadas que lançam um novo err
 Esse erro deverá ser tratado através de um bloco trycatch, evitando que um erro seja emitido no console do navegador e mostrando para o usuário 
 o erro ocorrido. */
 
-const email = RegExp(/^[a-zA-Z0-9._%-*+#$]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/g);
-const password = RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%&*_+.-]).{8,}$/)
+let users = [];
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%&*_+.-]).{8,}$/;
+
+const formLogin = document.getElementById('fLogin');
+const emailInput = document.getElementById('iEmail');
+const passwordInput = document.getElementById('iPassword');
+
+class Account { 
+    #password;
+
+    constructor(email, password){
+        this.email = email;
+        this.#password = password;
+    }
+
+    verificationAccount(){
+        if (!emailRegex.test(this.email)) {
+            throw new Error('Email inválido, verifique se atende aos requisitos.');
+        }
+
+        if (!passwordRegex.test(this.#password)) {
+            throw new Error('Senha inválida, verifique se atende aos requisitos.');
+        }
+
+        users.push(this);
+        console.log(users);
+        console.log('Cadastro realizado com sucesso.');
+    }
+}
+
+formLogin.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+
+    const login = new Account(emailInput.value, passwordInput.value);
+
+    try {
+        login.verificationAccount();
+    } catch (err) {
+        alert(err.message);
+        console.log(err.message);
+    } finally {
+        console.log('Operação concluída');
+    }
+
+    emailInput.value = '';
+    passwordInput.value = '';
+});

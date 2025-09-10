@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 1</title>
+</head>
+
+<body>
+
+    <header>
+        <h1>Formulario de login</h1>
+    </header>
+
+    <main>
+        <form id="fLogin">
+            <div>
+                <label for="iEmail" id="lEmail">Faça login com seu email (o email precisa conter @, texto após o @ com pelo menos 2 caracteres
+                    Ex: "gmail", "hotmail", ou qualquer outro nome valido), um . seguido de mais texto com pelo menos 2 caracteres após o texto
+                    após o @ que seriam a extensão do email, Ex: ".com", ".br", ou qualquer outra extensão valida.</label>
+                    <br>
+                    <input type="email" name="email" id="iEmail">
+            </div>
+            <br>
+            <div>
+                <label for="iPassword" id="lPassword">Crie uma senha, a senha deve atender aos seguintes requisitos: ter pelo menos uma letra minúscula,
+                    ter pelo menos uma letra maiúscula, ter pelo menos um número, ter pelo menos um caractere especial, ter pelo menos 8 caracteres.
+                </label>
+                <br>
+                <input type="password" name="password" id="iPassword">
+            </div>
+            <br>
+            <div>
+                <input type="submit" id="btnCreateAccount" value="CRIAR CONTA">
+            </div>
+        </form>
+    </main>
+
+    <script src="../src/index.js"></script>
+    
+</body>
+
+</html>
