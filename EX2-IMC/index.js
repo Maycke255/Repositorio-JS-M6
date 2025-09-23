@@ -14,6 +14,8 @@ Dentro da segunda função, após chamar a função que calcula o IMC, chame a f
 assíncrono do código.
 
 Formula: IMC = kg/m2 -> peso / (altura x altura).*/
+
+//===== EXERCICIO 3 - Refatorar o Exercicio 2 com os novos aprendizados sobre async e await ===== //
 class Imc {
     constructor(h, w){
         this.height = h;

@@ -42,4 +42,29 @@ getAge('2004-09-02')
 });
 
 //APROVEITANDO O ARQUIVO E USAR O AWAIT
-/* No caso do await não iriamos precisar usar tratamentos de erros para promises */
+/* No caso do await não iriamos precisar usar tratamentos de erros para promises, somente o try catch tradicional, porém o await so pode ser
+usado em funções async, e em algumas partes ele parece travar o uso da aplicação somente naquele momento, e a mesma coisa do then, porém ele
+atua de forma mais legivel e parece sincrono, ex: */
+
+async function division (num1, num2) {
+    if (typeof num1 !== 'number' || typeof num2 !== 'number') {
+        return Promise.reject('Ambas entradas precisam ser números.');
+    } if (num1 === 0 || num2 === 0) {
+        return Promise.reject('Divisão por 0 não e permitida!');
+    } else {
+        return `Resultado: ${num1 / num2}`;
+    }
+}
+
+async function execute () {
+    try {
+        const result1 = await division(10, 2);
+        console.log(result1);
+        const result2 = await division(10, null);
+        console.log(result2);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+execute();
