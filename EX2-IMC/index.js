@@ -22,27 +22,41 @@ class Imc {
         this.weight = w;
     }
 
-    #calculationImc () {
-        return new Promise((resolve, reject) => {
-            console.log('Calculando seu IMC...');
+    async #calculationImc () {
+        console.log('Calculando seu IMC...');
 
-            setTimeout(() => {
-                if (isNaN(this.weight) || isNaN(this.height)) {
-                    console.log('Erro no calculo...');
-                    reject('Ambos parametros precisam ser números');
-                } if (this.height <= 0 || this.weight <= 0) {
-                    console.log('Erro no calculo...');
-                    reject('Sua altura ou peso não podem ser zero...');
-                } else {
-                    const myImc = this.weight / (this.height * this.height)
-                    resolve(myImc);
-                }
-            }, 2 * 1000);
-        })
+        if (isNaN(this.weight) || isNaN(this.height)) {
+            console.log('Erro no calculo...');
+            return Promise.reject('Ambos parametros precisam ser números');
+        } if (this.height <= 0 || this.weight <= 0) {
+            console.log('Erro no calculo...');
+            return Promise.reject('Sua altura ou peso não podem ser zero...');
+        } else {
+            const myImc = this.weight / (this.height * this.height)
+            return myImc;
+        }
+
+        // //Se quisessemos colocar um setTimeout, deveriamos fazer:
+        // return new Promise((resolve, reject) => {
+        //  setTimeout(() => {
+        //      if (isNaN(this.weight) || isNaN(this.height)) {
+        //          console.log('Erro no calculo...');
+        //          reject('Ambos parametros precisam ser números');
+        //      } else if (this.height <= 0 || this.weight <= 0) {
+        //          console.log('Erro no calculo...');
+        //          reject('Sua altura ou peso não podem ser zero...');
+        //      } else {
+        //          const myImc = this.weight / (this.height * this.height)
+        //          resolve(myImc);
+        //      }
+        //  }, 2 * 1000);
+        //})
     }
 
-    displayImc () {
-        this.#calculationImc().then((result) => {
+    async displayImc () {
+        const result = await this.#calculationImc();
+
+        try {
             console.log(`Seu imc: ${result.toFixed(2)}.`);
 
             if (result < 18.5) {
@@ -56,12 +70,13 @@ class Imc {
             } else if (result >= 40) {
                 console.log("Situação: Obesidade grave");
             }
-        }).catch((reject) => {
-            console.log(`Motivo: ${reject}.`);
-        }).finally(() => {
+        } catch (error) {
+            console.log(error.message)
+        } finally {
             console.log('Calculo finalizado');
-        });
+        };
     }
 }
 
-const imc = new Imc(1.50, 63.00).displayImc();
+const imc = new Imc(1.50, 63.00);
+await imc.displayImc();
