@@ -1,0 +1,28 @@
+{
+  "articles": [
+    {
+      "id": "1",
+      "title": "Olá, mundo!",
+      "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam minus inventore voluptatem, eum repellat sed officiis aliquam",
+      "author": "Maycke"
+    },
+    {
+      "id": "2",
+      "title": "Requisições POST com Javascript",
+      "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam minus inventore voluptatem, eum repellat sed officiis aliquam",
+      "author": "Maycke"
+    },
+    {
+      "id": "8340",
+      "title": "Async",
+      "author": "Maycke",
+      "content": "Hello World"
+    },
+    {
+      "id": "af70",
+      "title": "Contabilidade",
+      "author": "Moises",
+      "content": "Faturamos 10000 no mes 08/2025"
+    }
+  ]
+}
