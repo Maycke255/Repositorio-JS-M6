@@ -20,10 +20,55 @@
     </header>
 
     <main>
-        <div id="valueSct">
+        <div id="heroSection">
             <h2>Valor atual no banco:</h2>
-            <p id="value"></p>
+            <p id="bankValue">R$ 0,00</p>
         </div>
+
+        <section id="operations-content" class="operations-content">
+            <div class="trasactions-group">
+                <select name="box-selection" id="boxSelection">
+                    <option value="" disabled selected hidden>Selecione uma opção...</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Deposits">Depositos</option>
+                    <option value="Loans">Empréstimos</option>
+                </select>
+                <button id="displayTransactions">EXIBIR TRANSAÇÕES</button>
+                <article id="trasactions"></article>
+            </div>
+
+            <section class="operationsGroup">
+                <P>Selecione a opção desejada:</P>
+                <div class="pix-area">
+                    <button id="displayPixArea">ÁREA PIX</button>
+                    <section id="pixSct"></section>
+                </div>
+
+                <div class="deposits-area">
+                    <button id="displayDepositArea">AREA DE DEPÓSITO</button>
+                    <section id="depositSct"></section>
+                </div>
+
+                <div class="loans-area">
+                    <button id="displayLoansArea">AREA DE EMPRÉSTIMOS</button>
+                    <section id="loansSct"></section>
+                </div>
+            </section>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <p>
+                    <img src="../imgs/favicon.png" alt="X">
+                    &copy; 2025 - Projeto para fins de estudo Shark Bank desenvolvido por Maycke Alexandre Araujo Dias. 
+                    Todos os direitos reservados.
+                </p>
+                
+                <div class="social-links">
+                    <a href="" class="linkedin"></a>
+                </div>
+            </div>
+        </footer>
     </main>
     
 </body>
