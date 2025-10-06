@@ -9,27 +9,33 @@
 
     <script src="../src/index.js" type="module" defer></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
     <link rel="icon" href="../imgs/favicon.png" type="image/png">
     <title>Shark Bank</title>
 </head>
 
 <body>
     <header>
-        <img src="../imgs/sharkmoney.png" alt="">
-        <h1>Bem vindo ao Shark Bank</h1>
-    </header>
+        <div class="header-group">
+            <img src="../imgs/icons8-web-analytics-50.png" alt="X">
+            <h1>Bem vindo ao Shark Bank</h1>
+        </div>
 
-    <main>
         <div id="heroSection">
             <h2>Valor atual no banco:</h2>
             <p id="bankValue">R$ 0,00</p>
         </div>
+    </header>
 
-        <section id="operations-content" class="operations-content">
+    <main>
+        <section id="operationsContent" class="operations-content">
             <div class="trasactions-group">
                 <select name="box-selection" id="boxSelection">
                     <option value="" disabled selected hidden>Selecione uma opção...</option>
-                    <option value="Pix">Pix</option>
+                    <option value="Transferências">Transferências</option>
                     <option value="Deposits">Depositos</option>
                     <option value="Loans">Empréstimos</option>
                 </select>
@@ -37,11 +43,11 @@
                 <article id="trasactions"></article>
             </div>
 
-            <section class="operationsGroup">
-                <P>Selecione a opção desejada:</P>
-                <div class="pix-area">
-                    <button id="displayPixArea">ÁREA PIX</button>
-                    <section id="pixSct"></section>
+            <section id="operationsArea" class="operations-area">
+                <P>Selecione a opção desejada para fazer uma operação:</P>
+                <div class="transfers-area">
+                    <button id="displayTransfersArea">ÁREA DE TRANSFERÊNCIAS</button>
+                    <section id="transfersSct"></section>
                 </div>
 
                 <div class="deposits-area">

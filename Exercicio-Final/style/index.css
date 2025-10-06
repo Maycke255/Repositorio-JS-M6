@@ -1,5 +1,98 @@
+:root {
+    --font-primary: "Poppins", sans-serif;
+    --font-secondary: "Open Sans", sans-serif;
+    --color-primary: #151420;
+    --color-secoundary: #523b94;
+    --color-tertiary: #e5e7eb;
+    --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
+    --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
+    --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
+    --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
+    --shadow-purple-strong: 2px 2px 4px rgba(114, 82, 207, 0.7); /* Roxo com 70% de opacidade */
+    --shadow-light: 0 2px 5px rgba(23, 49, 20, 0.973); 
+    --shadow-light-strong: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 15px rgba(188, 184, 252, 0.1);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: var(--color-primary);
+    color: var(--color-tertiary);
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--color-secoundary);
+    border-radius: 2rem 2rem 2rem 2rem;
+    margin: 1rem;
+    box-shadow: 0 0 20px rgba(114, 82, 207, 0.5), 0 0 40px rgba(114, 82, 207, 0.2);
+}
+
+.header-group {
+    display: flex;
+    flex-direction: row;
+    padding: 2rem;
+}
+
+header h1 {
+    text-shadow: var(--shadow-light-strong);
+}
+
+header img {
+    max-width: 5vw;
+    height: auto;
+    padding-right: 1.5rem;
+    filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.60));
+}
+
+#heroSection {
+    justify-items: center;
+    text-shadow: var(--shadow-light);
+}
+
+#bankValue {
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    padding: .5rem;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.operations-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.operations-area {
+    justify-items: center;
+}
+
+.trasactions-group {
+    margin: 2rem;
+}
+
+.operations-area  p {
+    margin: 2rem;
+}
+
+#trasactions, #transfersSct, #depositSct, #loansSct {
+    margin: 2rem;
+}
+
+#boxSelection, #displayTransactions {
+    margin: 2rem;
+    padding: 1rem;
+}
+
+#displayTransfersArea, #displayDepositArea, #displayLoansArea {
+    margin: 2rem;
+    padding: 1rem;
 }
