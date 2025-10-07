@@ -17,3 +17,81 @@ apenas do id do recurso a ser excluído na url).
 positivos ou negativos).
 - o valor do saldo total deve estar sempre atualizado na tela, ou seja, ao criar, editar ou excluir uma transação o saldo deverá 
 refletir o novo valor. */
+
+document.addEventListener("DOMContentLoaded", function() {
+    const customSelectWrapper = document.querySelector(".custom-select-wrapper");
+    const selectSelected = customSelectWrapper.querySelector(".select-selected");
+    const selectItems = customSelectWrapper.querySelector(".select-items");
+    const nativeSelect = customSelectWrapper.querySelector("#boxSelection");
+    
+    // Função para fechar todos os custom selects abertos
+    function closeAllSelect(elmnt) {
+        const x = document.querySelectorAll(".select-items");
+        const y = document.querySelectorAll(".select-selected");
+        for (let i = 0; i < y.length; i++) {
+            if (elmnt === y[i]) {
+                // Não fechar o select que foi clicado
+            } else {
+                y[i].classList.remove("select-arrow-active");
+            }
+        }
+        for (let i = 0; i < x.length; i++) {
+            if (elmnt !== y[i]) { // Se o clique não foi no 'select-selected' que abre este 'select-items'
+                x[i].classList.add("select-hide");
+            }
+        }
+    }
+
+    // Inicializa o texto visível com a opção selecionada ou o placeholder
+    if (nativeSelect.value === "" && nativeSelect.querySelector('option[disabled][selected]')) {
+        selectSelected.innerHTML = nativeSelect.querySelector('option[disabled][selected]').textContent;
+    } else {
+        selectSelected.innerHTML = nativeSelect.options[nativeSelect.selectedIndex].textContent;
+    }
+    
+    // Adiciona a classe 'same-as-selected' à opção correspondente ao valor inicial
+    const initialSelectedValue = nativeSelect.value;
+    if (initialSelectedValue) {
+        for (let i = 0; i < selectItems.children.length; i++) {
+            if (selectItems.children[i].dataset.value === initialSelectedValue) {
+                selectItems.children[i].classList.add("same-as-selected");
+                break;
+            }
+        }
+    }
+
+
+    selectSelected.addEventListener("click", function(e) {
+        e.stopPropagation(); // Evita que o clique se propague para o document e feche imediatamente
+        closeAllSelect(this); // Fecha outros selects abertos
+
+        this.classList.toggle("select-arrow-active"); // Gira a seta
+        selectItems.classList.toggle("select-hide"); // Mostra/esconde o dropdown
+    });
+
+    // Para cada item no dropdown (as novas 'divs' das opções)
+    for (let i = 0; i < selectItems.children.length; i++) {
+        selectItems.children[i].addEventListener("click", function(e) {
+            const selectedText = this.textContent;
+            const selectedValue = this.dataset.value;
+
+            selectSelected.innerHTML = selectedText; // Atualiza o texto visível
+            nativeSelect.value = selectedValue; // Atualiza o valor do select nativo (importante para formulários)
+
+            // Remove a classe 'same-as-selected' de todas as opções
+            for (let j = 0; j < selectItems.children.length; j++) {
+                selectItems.children[j].classList.remove("same-as-selected");
+            }
+            // Adiciona a classe 'same-as-selected' à opção clicada
+            this.classList.add("same-as-selected");
+
+            selectSelected.classList.remove("select-arrow-active"); // Volta a seta ao normal
+            selectItems.classList.add("select-hide"); // Esconde o dropdown
+        });
+    }
+
+    // Fecha o custom select quando o usuário clica em qualquer lugar fora dele
+    document.addEventListener("click", function(e) {
+        closeAllSelect(e.target);
+    });
+});

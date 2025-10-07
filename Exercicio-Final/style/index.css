@@ -9,12 +9,16 @@
     --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
     --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
     --shadow-purple-strong: 2px 2px 4px rgba(114, 82, 207, 0.7); /* Roxo com 70% de opacidade */
-    --shadow-light: 0 2px 5px rgba(23, 49, 20, 0.973); 
-    --shadow-light-strong: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 15px rgba(188, 184, 252, 0.1);
+    --shadow-light: 0 1px 5px rgba(255, 255, 255, 0.603); 
+    --shadow-light-strong: 0 0 6px rgba(255, 255, 255, 0.349), 0 0 15px rgba(188, 184, 252, 0.1);
 }
 
-* {
+
+html {
     box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
     margin: 0;
     padding: 0;
 }
@@ -37,8 +41,10 @@ header {
 
 .header-group {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     padding: 2rem;
+    align-items: center;
+    text-align: center;
 }
 
 header h1 {
@@ -46,9 +52,11 @@ header h1 {
 }
 
 header img {
-    max-width: 5vw;
+    width: 5vw;
+    min-width: 60px;
+    max-width: 60px;
     height: auto;
-    padding-right: 1.5rem;
+    margin-bottom: 1rem;
     filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.60));
 }
 
@@ -69,6 +77,7 @@ header img {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 .operations-area {
@@ -77,22 +86,151 @@ header img {
 
 .trasactions-group {
     margin: 2rem;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+}
+
+.operations-area {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%;
 }
 
 .operations-area  p {
     margin: 2rem;
+    text-align: center;
+    /* font-size: clamp(1rem, 5vw, 1.5rem); */
 }
+
+#boxSelection, #displayTransactions {
+    margin: 2rem;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .75rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+
+
+#boxSelection {
+    display: none;
+}
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block; /* Ou block, dependendo do layout */
+    margin: 2rem; /* Mantém o margin original */
+    width: 250px; /* Ajuste conforme necessário para o tamanho ideal */
+    max-width: calc(100% - 4rem); /* Para responsividade e margem */
+}
+
+/* Estilo para a caixa de seleção visível (o que você clica) */
+.select-selected {
+    /* Estilos do seu original #boxSelection */
+    border: 2.5px solid var(--color-secoundary); /* Usando o roxo para a borda */
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .75rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 1rem 2rem;
+    text-align: center;
+    color: var(--color-tertiary); /* Cor do texto na caixa principal */
+    cursor: pointer;
+    user-select: none; /* Previne seleção de texto */
+
+    /* Adiciona a seta para baixo */
+    position: relative;
+    padding-right: 3rem; /* Espaço para a seta */
+    white-space: nowrap; /* Garante que o texto não quebre nesta linha */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona '...' se o texto for muito longo */
+}
+
+/* Estilo da seta */
+.select-selected::after {
+    position: absolute;
+    content: "";
+    top: 50%;
+    right: 1.2rem; /* Posição da seta */
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: var(--color-tertiary) transparent transparent transparent; /* Cor da seta */
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+/* Gira a seta quando o dropdown está aberto */
+.select-selected.select-arrow-active::after {
+    border-color: transparent transparent var(--color-tertiary) transparent;
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Estilo para a lista de opções do dropdown */
+.select-items {
+    position: absolute;
+    background-color: var(--color-primary); /* Fundo escuro das opções */
+    border: 2.5px solid var(--color-secoundary); /* Borda roxa das opções */
+    border-radius: .75rem; /* Arredonda as bordas da caixa do dropdown */
+    top: 100%; /* Posiciona abaixo do select principal */
+    left: 0;
+    right: 0;
+    z-index: 99;
+    overflow: hidden; /* Garante que as bordas arredondadas funcionem */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para o dropdown */
+    margin-top: 0.5rem; /* Pequeno espaçamento entre o select e o dropdown */
+}
+
+/* Esconde o dropdown por padrão */
+.select-hide {
+    display: none;
+}
+
+/* Estilo para cada opção individual dentro do dropdown */
+.select-items div {
+    color: var(--color-tertiary); /* Cor do texto claro para as opções */
+    padding: 1rem 2rem; /* Mantém o padding original para as opções */
+    cursor: pointer;
+    font-size: .75rem; /* Mantém o font-size original */
+    letter-spacing: 1.5px; /* Mantém o letter-spacing original */
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease; /* Transição para o hover */
+}
+
+/* Estilo da opção ao passar o mouse ou quando já selecionada */
+.select-items div:hover,
+.select-items .same-as-selected {
+    background: var(--color-quaternary); /* Usa o gradiente ou uma cor de destaque no hover/selecionado */
+    color: var(--color-primary); /* Texto escuro para contraste no hover, se o fundo for claro */
+}
+
+
 
 #trasactions, #transfersSct, #depositSct, #loansSct {
     margin: 2rem;
 }
 
-#boxSelection, #displayTransactions {
+#displayTransfersArea, #displayDepositArea, #displayLoansArea {
     margin: 2rem;
     padding: 1rem;
 }
 
-#displayTransfersArea, #displayDepositArea, #displayLoansArea {
-    margin: 2rem;
-    padding: 1rem;
+
+
+.footer-content p img {
+    width: 5vw;
+    min-width: 60px;
+    max-width: 60px;
+    height: auto;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.60));
 }

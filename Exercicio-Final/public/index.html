@@ -33,12 +33,23 @@
     <main>
         <section id="operationsContent" class="operations-content">
             <div class="trasactions-group">
-                <select name="box-selection" id="boxSelection">
-                    <option value="" disabled selected hidden>Selecione uma opção...</option>
-                    <option value="Transferências">Transferências</option>
-                    <option value="Deposits">Depositos</option>
-                    <option value="Loans">Empréstimos</option>
-                </select>
+
+                <div class="custom-select-wrapper">
+                    <select name="box-selection" id="boxSelection">
+                        <option value="" disabled selected hidden>Selecione uma opção...</option>
+                        <option value="Transferências">Transferências</option>
+                        <option value="Deposits">Depositos</option>
+                        <option value="Loans">Empréstimos</option>
+                    </select>
+
+                    <div class="select-selected">Selecione uma opção...</div>
+                    <div class="select-items select-hide">
+                        <div data-value="Transferências">Transferências</div>
+                        <div data-value="Deposits">Depósitos</div>
+                        <div data-value="Loans">Empréstimos</div>
+                    </div>
+                </div>
+
                 <button id="displayTransactions">EXIBIR TRANSAÇÕES</button>
                 <article id="trasactions"></article>
             </div>
