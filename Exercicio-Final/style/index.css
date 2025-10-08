@@ -4,6 +4,7 @@
     --color-primary: #151420;
     --color-secoundary: #523b94;
     --color-tertiary: #e5e7eb;
+    --color-error:#e92b34;
     --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
     --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
     --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
@@ -106,20 +107,7 @@ header img {
     /* font-size: clamp(1rem, 5vw, 1.5rem); */
 }
 
-#boxSelection, #displayTransactions {
-    margin: 2rem;
-    border: 2.5px solid var(--color-tertiary);
-    background: var(--color-quaternary);
-    border-radius: .75rem;
-    font-size: .75rem;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    padding: 1rem 2rem;
-    text-align: center;
-}
-
-
-
+/*========= Estilo proprio da caixa de seleção =========*/
 #boxSelection {
     display: none;
 }
@@ -134,17 +122,18 @@ header img {
 /* Estilo para a caixa de seleção visível (o que você clica) */
 .select-selected {
     /* Estilos do seu original #boxSelection */
-    border: 2.5px solid var(--color-secoundary); /* Usando o roxo para a borda */
+    border: 2.5px solid var(--color-tertiary); /* Usando o roxo para a borda */
     background: var(--color-quaternary);
     border-radius: .75rem;
-    font-size: .75rem;
+    font-size: .85rem;
     font-weight: 500;
     letter-spacing: 1.5px;
     padding: 1rem 2rem;
     text-align: center;
-    color: var(--color-tertiary); /* Cor do texto na caixa principal */
+    color: var(--color-primary); /* Cor do texto na caixa principal */
     cursor: pointer;
     user-select: none; /* Previne seleção de texto */
+    box-shadow: var(--shadow-light);
 
     /* Adiciona a seta para baixo */
     position: relative;
@@ -177,15 +166,16 @@ header img {
 /* Estilo para a lista de opções do dropdown */
 .select-items {
     position: absolute;
+    font-family: var(--font-secondary);
     background-color: var(--color-primary); /* Fundo escuro das opções */
-    border: 2.5px solid var(--color-secoundary); /* Borda roxa das opções */
+    border: 2.5px solid var(--color-tertiary); /* Borda roxa das opções */
     border-radius: .75rem; /* Arredonda as bordas da caixa do dropdown */
     top: 100%; /* Posiciona abaixo do select principal */
     left: 0;
     right: 0;
     z-index: 99;
     overflow: hidden; /* Garante que as bordas arredondadas funcionem */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para o dropdown */
+    box-shadow: var(--shadow-light); /* Sombra para o dropdown */
     margin-top: 0.5rem; /* Pequeno espaçamento entre o select e o dropdown */
 }
 
@@ -199,7 +189,7 @@ header img {
     color: var(--color-tertiary); /* Cor do texto claro para as opções */
     padding: 1rem 2rem; /* Mantém o padding original para as opções */
     cursor: pointer;
-    font-size: .75rem; /* Mantém o font-size original */
+    font-size: .80rem; /* Mantém o font-size original */
     letter-spacing: 1.5px; /* Mantém o letter-spacing original */
     font-weight: 500;
     text-align: center;
@@ -214,7 +204,6 @@ header img {
 }
 
 
-
 #trasactions, #transfersSct, #depositSct, #loansSct {
     margin: 2rem;
 }
@@ -225,12 +214,87 @@ header img {
 }
 
 
+/*========= Estilos dos botões ========= */
+#displayTransactions, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
+    margin: 2rem;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    padding: 1rem 2rem;
+    text-align: center;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+}
 
-.footer-content p img {
+/* Efeito após passar por cima */
+.select-selected:hover, #displayTransactions:hover, #displayTransfersArea:hover, #displayDepositArea:hover, #displayLoansArea:hover {
+    background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
+    transform: scale(1.02);
+}
+
+/* Muda de escala quando clicavel */
+.select-selected:active, #displayTransactions:active, #displayTransfersArea:active, #displayDepositArea:active, #displayLoansArea:active {
+    transform: scale(0.99);
+}
+
+.line {
+    width: 80%;
+    border: solid 1px #230a69;
+    border-radius: .5rem;
+}
+
+.footer-content > img {
     width: 5vw;
-    min-width: 60px;
-    max-width: 60px;
+    min-width: 40px;
+    max-width: 40px;
     height: auto;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.60));
+    margin: 3rem 0 1rem 0;
+    filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.603));
+}
+
+.footer-content p {
+    color: #e5e7ebc9;
+    font-size: 13px;
+}
+
+.footer-content .social-links img {
+    padding: 1rem;
+    filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.603));
+    text-decoration: none;
+}
+
+.footer-content .social-links img:hover {
+    transform: scale(1.07);
+}
+
+.footer-content .social-links img:active {
+    transform: scale(0.99);
+}
+
+.footer-content .social-links a {
+    text-decoration: none;
+}
+
+.social-links {
+    margin: 1rem;
+}
+
+.footer-content {
+    display:  flex;
+    flex-direction: column;
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+}
+
+.error {
+    background-color: var(--color-error);
+    color: var(--color-tertiary);
+    font-style: italic;
 }

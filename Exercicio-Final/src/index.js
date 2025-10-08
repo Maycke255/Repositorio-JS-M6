@@ -18,6 +18,8 @@ positivos ou negativos).
 - o valor do saldo total deve estar sempre atualizado na tela, ou seja, ao criar, editar ou excluir uma transação o saldo deverá 
 refletir o novo valor. */
 
+/* ===== PERSONALIZAÇÃO DO SELECT ===== */
+
 document.addEventListener("DOMContentLoaded", function() {
     const customSelectWrapper = document.querySelector(".custom-select-wrapper");
     const selectSelected = customSelectWrapper.querySelector(".select-selected");
@@ -59,7 +61,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-
 
     selectSelected.addEventListener("click", function(e) {
         e.stopPropagation(); // Evita que o clique se propague para o document e feche imediatamente
