@@ -96,3 +96,6 @@ document.addEventListener("DOMContentLoaded", function() {
         closeAllSelect(e.target);
     });
 });
+
+import { trasnferArea } from "./entities/transfers.js";
+trasnferArea()

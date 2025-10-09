@@ -11,15 +11,11 @@
     --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
     --shadow-purple-strong: 2px 2px 4px rgba(114, 82, 207, 0.7); /* Roxo com 70% de opacidade */
     --shadow-light: 0 1px 5px rgba(255, 255, 255, 0.603); 
-    --shadow-light-strong: 0 0 6px rgba(255, 255, 255, 0.349), 0 0 15px rgba(188, 184, 252, 0.1);
+    --shadow-light-strong: 0 1px 6px rgba(255, 255, 255, 0.801);
 }
 
-
-html {
+* {
     box-sizing: border-box;
-}
-*, *::before, *::after {
-    box-sizing: inherit;
     margin: 0;
     padding: 0;
 }
@@ -35,7 +31,7 @@ header {
     flex-direction: column;
     align-items: center;
     background: var(--color-secoundary);
-    border-radius: 2rem 2rem 2rem 2rem;
+    border-radius: 2rem;
     margin: 1rem;
     box-shadow: 0 0 20px rgba(114, 82, 207, 0.5), 0 0 40px rgba(114, 82, 207, 0.2);
 }
@@ -127,6 +123,7 @@ header img {
     border-radius: .75rem;
     font-size: .85rem;
     font-weight: 500;
+    font-family: var(--font-secondary);
     letter-spacing: 1.5px;
     padding: 1rem 2rem;
     text-align: center;
@@ -255,7 +252,7 @@ header img {
     max-width: 40px;
     height: auto;
     margin: 3rem 0 1rem 0;
-    filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.603));
+    filter: drop-shadow(var(--shadow-light));
 }
 
 .footer-content p {
@@ -265,7 +262,7 @@ header img {
 
 .footer-content .social-links img {
     padding: 1rem;
-    filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.603));
+    filter: drop-shadow(var(--shadow-light));
     text-decoration: none;
 }
 
@@ -297,4 +294,50 @@ header img {
     background-color: var(--color-error);
     color: var(--color-tertiary);
     font-style: italic;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-primary: #e5e7eb;
+        --color-tertiary: #151420;
+    }
+
+    header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: var(--color-secoundary);
+        border-radius: 2rem;
+        margin: 1rem;
+        color: var(--color-primary);
+        box-shadow: 0 0 20px rgba(114, 82, 207, 0.5), 0 0 40px rgba(114, 82, 207, 0.2);
+    }
+
+    .line {
+        border: solid 1px #bab4cc;
+    }
+
+    .select-selected {
+        color: var(--color-tertiary);
+        box-shadow: var(--shadow-dark-strong);
+    }
+
+    #displayTransactions, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
+        color: var(--color-tertiary);
+        box-shadow: var(--shadow-dark-strong);
+    }
+
+    .footer-content > img {
+        filter: drop-shadow(var(--shadow-dark-strong));
+    }
+
+    .footer-content p {
+        color: var(--color-tertiary);
+    }
+
+    .footer-content .social-links img {
+        padding: 1rem;
+        filter: drop-shadow(var(--shadow-dark-strong));
+        text-decoration: none;
+    }
 }
