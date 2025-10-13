@@ -202,12 +202,11 @@ header img {
 
 
 #trasactions, #transfersSct, #depositSct, #loansSct {
-    margin: 2rem;
+    margin: 1rem;
 }
 
 #displayTransfersArea, #displayDepositArea, #displayLoansArea {
-    margin: 2rem;
-    padding: 1rem;
+    margin: 1rem;
 }
 
 
@@ -229,7 +228,7 @@ header img {
     max-height: 3rem;
     max-width: 14rem;
     text-align: center;
-    white-space: normal;
+    white-space: nowrap;
     word-break: break-word;
     line-height: 1.2;
     color: var(--color-primary);
@@ -257,7 +256,70 @@ header img {
 }
 
 #transfersSct {
+    display: flex;
+    flex-direction: column;
+}
+
+.subtitle {
     padding: 1rem;
+}
+
+.date-group, .sender-group {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+#dateTransfer, #btnExecuteTransfer {
+    margin: 2rem auto;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2.8rem;
+    width: 100%;
+    max-height: 3rem;
+    max-width: 14rem;
+    text-align: center;
+    white-space: nowrap;
+    word-break: break-word;
+    line-height: 1.2;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+}
+
+#nameSender {
+    margin: 1rem auto;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2.8rem;
+    width: 100%;
+    max-height: 3rem;
+    max-width: 14rem;
+    text-align: center;
+    white-space: nowrap;
+    word-break: break-word;
+    line-height: 1.2;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
 }
 
 .line {
