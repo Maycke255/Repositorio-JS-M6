@@ -6,6 +6,7 @@
     --color-tertiary: #e5e7eb;
     --color-error:#e92b34;
     --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
+    --color-quintennial: #141d2e;
     --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
     --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
     --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
@@ -250,27 +251,22 @@ header img {
 
 /*========= Estilos das sections ========= */
 
-.transfers-area {
-    display: flex;
-    flex-direction: column;
-}
-
-#transfersSct {
-    display: flex;
-    flex-direction: column;
-}
-
-.subtitle {
+.subtitle, .subtitle-transfer {
     padding: 1rem;
 }
 
-.date-group, .sender-group {
+.date-group, .sender-group, .recipient-group {
     display: flex;
     flex-direction: column;
     padding: 1rem;
 }
 
-#dateTransfer, #btnExecuteTransfer {
+.btns-transfer-group, .group-date-btns {
+    display: flex;
+    flex-direction: column;
+}
+
+#dateTransfer, #btnTransferToday, #executeTransfer, #collectSection {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
     background: var(--color-quaternary);
@@ -296,31 +292,76 @@ header img {
     box-shadow: var(--shadow-light);
 }
 
-#nameSender {
-    margin: 1rem auto;
-    border: 2.5px solid var(--color-tertiary);
-    background: var(--color-quaternary);
+#nameSender, #valueTransfer, #nameRecipient {
+    margin: 1rem 0;
+    text-align: left;
+    border: 2.5px solid #e5e7ebb9;
+    background: var(--color-quintennial);
     border-radius: .75rem;
-    font-size: .85rem;
+    font-size: 1rem;
     font-weight: 500;
     font-family: var(--font-secondary);
     letter-spacing: 1.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem 2.8rem;
+    padding: .75rem 1.5rem;
     width: 100%;
-    max-height: 3rem;
-    max-width: 14rem;
-    text-align: center;
-    white-space: nowrap;
-    word-break: break-word;
-    line-height: 1.2;
-    color: var(--color-primary);
-    cursor: pointer;
-    user-select: none;
+    max-width: 100%;
+    color: var(--color-tertiary);
     box-shadow: var(--shadow-light);
 }
+
+/* Efeito após passar por cima */
+#dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, #collectSection:hover {
+    background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
+    transform: scale(1.02);
+}
+
+/* Muda de escala quando clicavel */
+#dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, #collectSection:active {
+    transform: scale(0.99);
+}
+
+/* Container para o conteúdo dinâmico. Inicialmente não ativo. */
+
+/* Estilo base para cada elemento que será animado individualmente */
+/* Eles começarão invisíveis, colapsados e ligeiramente acima */
+.animated-element {
+    opacity: 0;
+    max-height: 0; /* Para o efeito de colapsar/expandir */
+    overflow: hidden; /* Garante que o conteúdo não vaze enquanto height é 0 */
+    transform: translateY(-20px); /* Começa 20px acima, para descer na animação */
+    transition: opacity 0.4s ease-out, max-height 0.6s ease-out, transform 0.4s ease-out;
+    /* Ajuste os tempos conforme quão rápido/lento você quer a animação */
+}
+
+/* Estado ativo: quando a classe é adicionada ao #transferContentWrapper */
+/* Todos os elementos .animated-element dentro de um .transfer-section-active se tornam visíveis e se movem para a posição */
+.transfer-section-active .animated-element {
+    opacity: 1;
+    max-height: 500px; /* Um valor grande o suficiente para acomodar o conteúdo sem cortar */
+    transform: translateY(0);
+}
+
+/* Efeito Cascata: Atrasos para cada tipo de elemento */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.transfer-section-active .subtitle-transfer {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.transfer-section-active .date-group {
+    transition-delay: 0.1s;
+}
+.transfer-section-active .sender-group {
+    transition-delay: 0.2s;
+}
+.transfer-section-active .recipient-group {
+    transition-delay: 0.3s;
+}
+.transfer-section-active .btns-transfer-group {
+    transition-delay: 0.4s; /* Aparece por último */
+}
+
+/* Quando a seção está recolhendo, o transition-delay se aplica de forma inversa.
+   O último a aparecer (com maior delay) será o primeiro a começar a recolher,
+   mas o efeito visual de "cascata para cima" será natural devido ao translateY e max-height. */
 
 .line {
     width: 80%;

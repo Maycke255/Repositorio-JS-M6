@@ -97,5 +97,47 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-import { trasnferArea } from "./entities/transfers.js";
-trasnferArea()
+import { trasnferArea } from "./entities/DOMtransfers.js";
+trasnferArea
+import { Transfer } from "./controller/Transfer.js";
+
+const dateInput = document.getElementById('dateTransfer');
+const nameSenderInput = document.getElementById('nameSender');
+const valueTransferInput = document.getElementById('valueTransfer');
+const nameRecipientInput = document.getElementById('nameRecipient');
+
+document.getElementById('btnTransferToday').addEventListener('click', (ev) => {
+    ev.preventDefault();
+
+    const today = new Date();
+
+    const day = String(today.getDate()).padStart(2, "0");       // dia com 2 dígitos
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // meses começam do 0
+    const year = today.getFullYear();
+
+    dateInput.value = `${year}-${month}-${day}`;
+})
+
+document.getElementById('executeTransfer').addEventListener('click', async (ev) => {
+    ev.preventDefault();
+
+    const date = dateInput.value;
+    const nameSender = nameSenderInput.value;
+    const valueTransfer = valueTransferInput.value;
+    const nameRecipient = nameRecipientInput.value;
+
+    const newTransfer = new Transfer(date, nameSender, valueTransfer, nameRecipient);
+
+    try {
+        // Chamamos o método assíncrono makeTransfer da instância
+        // Usamos 'await' porque makeTransfer é um método assíncrono
+        await newTransfer.makeTransfer()
+
+        dateInput.value = '';
+        nameSenderInput.value = '';
+        valueTransferInput.value = '';
+        nameRecipientInput.value = '';
+    } catch (message) {
+        console.error('Erro ao processar a transferência no app.js:', message);
+    }
+})
