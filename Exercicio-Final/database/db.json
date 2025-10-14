@@ -1,11 +1,27 @@
 {
-    "transfers": [
-
-    ],
-    "deposit": [
-
-    ],
-    "loans": [
-        
-    ]
+  "transfers": [
+    {
+      "id": "85e2",
+      "date": "2025-10-14",
+      "senderName": "Maycke Alexandre",
+      "valueTransfer": null,
+      "recipientName": "Kaio"
+    },
+    {
+      "id": "4726",
+      "date": "2025-10-14",
+      "senderName": "Maycke Alexandre",
+      "valueTransfer": 1500,
+      "recipientName": "484761"
+    },
+    {
+      "id": "1217",
+      "date": "2025-10-14",
+      "senderName": "123456",
+      "valueTransfer": 1500,
+      "recipientName": "Kaio"
+    }
+  ],
+  "deposit": [],
+  "loans": []
 }

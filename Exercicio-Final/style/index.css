@@ -309,6 +309,23 @@ header img {
     box-shadow: var(--shadow-light);
 }
 
+#nameSender:active, #valueTransfer:active, #nameRecipient:active {
+    margin: 1rem 0;
+    text-align: left;
+    border: 2.5px solid #e5e7ebb9;
+    background: var(--color-quintennial);
+    border-radius: .75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    padding: .75rem 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    color: var(--color-tertiary);
+    box-shadow: var(--shadow-light);
+}
+
 /* Efeito após passar por cima */
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
@@ -411,6 +428,85 @@ header img {
     padding: 2rem;
     align-items: center;
     text-align: center;
+}
+
+/* --- Estilos para a Caixa de Alerta Personalizada --- */
+
+/* Overlay (fundo escuro que cobre a página) */
+#customAlertOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Preto semi-transparente */
+    z-index: 999; /* Garante que fique acima de outros elementos */
+    opacity: 0; /* Começa invisível */
+    visibility: hidden; /* Esconde completamente */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Animação suave */
+}
+
+/* Caixa de Alerta Principal */
+#customAlert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000; /* Acima do overlay */
+    display: flex; /* Para centralizar o conteúdo */
+    align-items: baseline; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    margin-top: 3rem;
+    opacity: 0; /* Começa invisível */
+    visibility: hidden; /* Esconde completamente */
+    transform: translateY(-20px); /* Posição inicial um pouco acima para animação */
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; /* Animação suave */
+}
+
+/* Classes para tornar o alerta visível */
+#customAlert.visible,
+#customAlertOverlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Retorna à posição original */
+}
+
+/* Conteúdo interno da caixa de alerta */
+.custom-alert-content {
+    background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
+    color: #f0f0f0; /* Texto claro */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Sombra para profundidade */
+    text-align: center;
+    max-width: 400px;
+    width: 90%; /* Responsividade */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    position: relative; /* Necessário se quiser adicionar elementos posicionados absolutos dentro */
+}
+
+.custom-alert-content p {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* Botão "OK" dentro do alerta */
+#customAlertOkButton {
+    background-color: #007bff; /* Azul para o botão "OK" */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+#customAlertOkButton:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover */
 }
 
 .error {

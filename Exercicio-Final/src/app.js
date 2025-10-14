@@ -97,47 +97,32 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+/* ===== DEFININDO A FUNÇÃO E ESTILIZAÇÃO DA CAIXA DE MENSAGEM ===== */
+
+// Obtém referências aos elementos do alerta personalizado
+const customAlertOverlay = document.getElementById('customAlertOverlay');
+const customAlert = document.getElementById('customAlert');
+const customAlertMessage = document.getElementById('customAlertMessage');
+const customAlertOkButton = document.getElementById('customAlertOkButton');
+
+// Função para exibir o alerta personalizado
+function showCustomAlert(message) {
+    customAlertMessage.textContent = message; // Define a mensagem
+    customAlertOverlay.classList.add('visible'); // Mostra o overlay
+    customAlert.classList.add('visible');       // Mostra a caixa de alerta
+}
+
+// Função para ocultar o alerta personalizado
+function hideCustomAlert() {
+    customAlertOverlay.classList.remove('visible'); // Oculta o overlay
+    customAlert.classList.remove('visible');       // Oculta a caixa de alerta
+}
+
+// Adiciona um listener de evento ao botão "OK" para fechar o alerta
+customAlertOkButton.addEventListener('click', hideCustomAlert);
+
+export { showCustomAlert }
+
+/* ===== CHAMANDO A FUNÇÃO DE TRANSFERENCIA ===== */
+
 import { trasnferArea } from "./entities/DOMtransfers.js";
-trasnferArea
-import { Transfer } from "./controller/Transfer.js";
-
-const dateInput = document.getElementById('dateTransfer');
-const nameSenderInput = document.getElementById('nameSender');
-const valueTransferInput = document.getElementById('valueTransfer');
-const nameRecipientInput = document.getElementById('nameRecipient');
-
-document.getElementById('btnTransferToday').addEventListener('click', (ev) => {
-    ev.preventDefault();
-
-    const today = new Date();
-
-    const day = String(today.getDate()).padStart(2, "0");       // dia com 2 dígitos
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // meses começam do 0
-    const year = today.getFullYear();
-
-    dateInput.value = `${year}-${month}-${day}`;
-})
-
-document.getElementById('executeTransfer').addEventListener('click', async (ev) => {
-    ev.preventDefault();
-
-    const date = dateInput.value;
-    const nameSender = nameSenderInput.value;
-    const valueTransfer = valueTransferInput.value;
-    const nameRecipient = nameRecipientInput.value;
-
-    const newTransfer = new Transfer(date, nameSender, valueTransfer, nameRecipient);
-
-    try {
-        // Chamamos o método assíncrono makeTransfer da instância
-        // Usamos 'await' porque makeTransfer é um método assíncrono
-        await newTransfer.makeTransfer()
-
-        dateInput.value = '';
-        nameSenderInput.value = '';
-        valueTransferInput.value = '';
-        nameRecipientInput.value = '';
-    } catch (message) {
-        console.error('Erro ao processar a transferência no app.js:', message);
-    }
-})

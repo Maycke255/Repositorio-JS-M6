@@ -1,4 +1,6 @@
 import { displayTransfersArea, transfersSct } from "./elements.js";
+import { Transfer } from "../controller/Transfer.js";
+import { showCustomAlert } from "../app.js";
 
 // ========================= EVENTLISTERNS DA AREA DE TRANSFERENCIA ========================= //
 export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) => {
@@ -17,8 +19,10 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
 
     // Garante que o wrapper existe. Se não existir, cria.
     if (!transferContentWrapper) {
-        transferContentWrapper = document.createElement('div');
+        transferContentWrapper = document.createElement('form');
         transferContentWrapper.id = 'transferContentWrapper';
+        transferContentWrapper.method = 'POST';
+        transferContentWrapper.action = 'http://localhost:3000/transfers'
         transfersSct.append(transferContentWrapper);
     }
 
@@ -26,7 +30,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     transferContentWrapper.innerHTML = '';
     transferContentWrapper.classList.remove('transfer-section-active');
 
-    // --- CRIAÇÃO DOS ELEMENTOS (MANTENDO SEU CÓDIGO) ---
+    // --- CRIAÇÃO DOS ELEMENTOS ---
     // Adicione a classe 'animated-element' a CADA um desses grupos que você quer animar.
 
     const subtitle = document.createElement('h2');
@@ -45,16 +49,18 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     const groupDateBtns = document.createElement('div');
     groupDateBtns.classList = 'group-date-btns';
 
-    const dateTransfer = document.createElement('input');
-    dateTransfer.type = 'date';
-    dateTransfer.required = true;
-    dateTransfer.id = 'dateTransfer';
+    const dateTransferInput = document.createElement('input'); // Variável local do input
+    dateTransferInput.type = 'date';
+    dateTransferInput.required = true;
+    dateTransferInput.id = 'dateTransfer';
+    dateTransferInput.name = 'date'
 
-    const todayDate = document.createElement('button');
-    todayDate.id = 'btnTransferToday';
-    todayDate.textContent = 'Transferir Hoje';
+    const todayDateButton = document.createElement('button'); // Variável local do botão
+    todayDateButton.id = 'btnTransferToday';
+    todayDateButton.textContent = 'Transferir Hoje';
+    todayDateButton.type = 'button'; // <<-- Importante: Definir como 'button' para não acionar o submit do form
 
-    groupDateBtns.append(dateTransfer, todayDate);
+    groupDateBtns.append(dateTransferInput, todayDateButton);
     dateGroup.append(labelDate, groupDateBtns);
 
     const senderGroup = document.createElement('div');
@@ -66,20 +72,22 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     labelNameSender.classList = 'name-sender';
     labelNameSender.textContent = 'Nome da conta que ENVIARÁ o dinheiro, o remetente (nome do úsuario).'
 
-    const nameSender = document.createElement('input');
-    nameSender.type = 'text';
-    nameSender.id = 'nameSender';
+    const nameSenderInput = document.createElement('input'); // Variável local do input
+    nameSenderInput.type = 'text';
+    nameSenderInput.id = 'nameSender';
+    nameSenderInput.name = 'senderName'
 
     const labelValueTransfer = document.createElement('label');
     labelValueTransfer.htmlFor = 'valueTransfer';
     labelValueTransfer.classList = 'value-transfer-label';
     labelValueTransfer.textContent = 'Informe o valor a ser transferido.';
 
-    const valueTransfer = document.createElement('input');
-    valueTransfer.type = 'text';
-    valueTransfer.id = 'valueTransfer';
+    const valueTransferInput = document.createElement('input'); // Variável local do input
+    valueTransferInput.type = 'text';
+    valueTransferInput.id = 'valueTransfer';
+    valueTransferInput.name = 'value';
 
-    senderGroup.append(labelNameSender, nameSender, labelValueTransfer, valueTransfer);
+    senderGroup.append(labelNameSender, nameSenderInput, labelValueTransfer, valueTransferInput);
 
     const recipientGroup = document.createElement('div');
     recipientGroup.className = 'recipient-group';
@@ -90,25 +98,28 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     labelNameRecipient.classList = 'name-recipient';
     labelNameRecipient.textContent = 'Nome da conta que RECEBERÁ o dinheiro, o destinatário (nome do úsuario).';
 
-    const nameRecipient = document.createElement('input');
-    nameRecipient.type = 'text';
-    nameRecipient.id = 'nameRecipient'
+    const nameRecipientInput = document.createElement('input'); // Variável local do input
+    nameRecipientInput.type = 'text';
+    nameRecipientInput.id = 'nameRecipient';
+    nameRecipientInput.name = 'recipientName';
 
-    recipientGroup.append(labelNameRecipient, nameRecipient);
+    recipientGroup.append(labelNameRecipient, nameRecipientInput);
 
     const buttonsTransfer = document.createElement('div');
     buttonsTransfer.className = 'btns-transfer-group';
     buttonsTransfer.classList.add('animated-element'); // Adicionado 'animated-element'
 
-    const executeTransfer = document.createElement('button');
-    executeTransfer.id = 'executeTransfer';
-    executeTransfer.textContent = 'Realizar Transferência';
+    const executeTransferButton = document.createElement('button'); // Variável local do botão
+    executeTransferButton.id = 'executeTransfer';
+    executeTransferButton.textContent = 'Realizar Transferência';
+    executeTransferButton.type = 'submit'; // <<-- Importante: Definir como 'submit' para acionar o evento submit do form
 
-    const collectSection = document.createElement('button');
-    collectSection.id = 'collectSection';
-    collectSection.textContent = 'Recolher Seção';
+    const collectSectionButton = document.createElement('button'); // Variável local do botão
+    collectSectionButton.id = 'collectSection';
+    collectSectionButton.textContent = 'Recolher Seção';
+    collectSectionButton.type = 'button';
 
-    buttonsTransfer.append(executeTransfer, collectSection);
+    buttonsTransfer.append(executeTransferButton, collectSectionButton);
 
     // Adiciona todos os elementos ao wrapper
     transferContentWrapper.append(subtitle, dateGroup, senderGroup, recipientGroup, buttonsTransfer);
@@ -120,6 +131,64 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     requestAnimationFrame(() => {
         transferContentWrapper.classList.add('transfer-section-active');
     });
+
+    // --- AGORA, EVENT LISTENERS AQUI, APÓS A CRIAÇÃO DOS ELEMENTOS ---
+    // --- BOTÃO DA DATA ---
+    todayDateButton.addEventListener('click', (ev) => {
+        ev.preventDefault();
+
+        const today = new Date();
+
+        const day = String(today.getDate()).padStart(2, "0");       // dia com 2 dígitos
+        const month = String(today.getMonth() + 1).padStart(2, "0"); // meses começam do 0
+        const year = today.getFullYear();
+
+        dateTransferInput.value = `${year}-${month}-${day}`;
+    });
+
+    // --- REALIZAR A TRANSFERENCIA ---
+    executeTransferButton.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+    
+        const date = dateTransferInput.value;
+        const nameSender = nameSenderInput.value;
+        const valueTransfer = parseFloat(valueTransferInput.value);
+        const nameRecipient = nameRecipientInput.value;
+
+        if (!date || !nameSender || valueTransfer <= 0 || !nameRecipient) {
+            showCustomAlert('Por favor, preencha todos os campos!');
+            return;
+        }
+
+        if (isNaN(valueTransfer)) {
+            showCustomAlert('Digite apenas números!');
+            return;
+        }
+
+        const lettersOnlyRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
+
+        if (!lettersOnlyRegex.test(nameSender) || !lettersOnlyRegex.test(nameRecipient)) {
+            showCustomAlert('Os campos de remetente e destinatário devem conter apenas letras e espaços!');
+            return;
+        }
+    
+        const newTransfer = new Transfer(date, nameSender, valueTransfer, nameRecipient);
+    
+        try {
+            // Chamamos o método assíncrono makeTransfer da instância
+            // Usamos 'await' porque makeTransfer é um método assíncrono
+            await newTransfer.makeTransfer()
+    
+            dateTransferInput.value = '';
+            nameSenderInput.value = '';
+            valueTransferInput.value = '';
+            nameRecipientInput.value = '';
+        } catch (message) {
+            showCustomAlert('Erro ao processar a transferência no app.js, verifique o console para mais informações.')
+            console.error('Erro ao processar a transferência no app.js:', message);
+        }
+    });
+
 
     // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO ---
     collectSection.addEventListener('click', (e) => {
