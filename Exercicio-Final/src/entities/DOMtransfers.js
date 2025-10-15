@@ -157,11 +157,34 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
 
         if (!date || !nameSender || valueTransfer <= 0 || !nameRecipient) {
             showCustomAlert('Por favor, preencha todos os campos!');
-            return;
-        }
 
-        if (isNaN(valueTransfer)) {
-            showCustomAlert('Digite apenas números!');
+            dateTransferInput.classList.add('error');
+            dateTransferInput.focus();
+            nameSenderInput.classList.add('error');
+            nameSenderInput.focus();
+            nameRecipientInput.classList.add('error');
+            nameRecipientInput.focus();
+            valueTransferInput.classList.add('error');
+            valueTransferInput.focus();
+
+            setTimeout(function () {
+                dateTransferInput.classList.remove('error');
+                nameSenderInput.classList.remove('error');
+                nameRecipientInput.classList.remove('error');
+                valueTransferInput.classList.remove('error');
+            }, 2200);
+                return;
+            }
+
+            if (isNaN(valueTransfer)) {
+                showCustomAlert('Digite apenas números!');
+
+                valueTransferInput.classList.add('error');
+                valueTransferInput.focus();
+
+                setTimeout(() => {
+                    valueTransferInput.classList.remove('error');
+                }, 2200);
             return;
         }
 
@@ -169,6 +192,16 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
 
         if (!lettersOnlyRegex.test(nameSender) || !lettersOnlyRegex.test(nameRecipient)) {
             showCustomAlert('Os campos de remetente e destinatário devem conter apenas letras e espaços!');
+
+            nameSenderInput.classList.add('error');
+            nameSenderInput.focus();
+            nameRecipientInput.classList.add('error');
+            nameRecipientInput.focus();
+
+            setTimeout(() => {
+                nameSenderInput.classList.remove('error');
+                nameRecipientInput.classList.remove('error');
+            }, 2200);
             return;
         }
     

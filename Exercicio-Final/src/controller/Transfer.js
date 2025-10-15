@@ -1,4 +1,5 @@
 import { bankValue } from '../entities/elements.js';
+import { showCustomAlert } from '../app.js';
 
 export class Transfer {
     constructor(date, senderName, value, recipientName){
@@ -32,10 +33,10 @@ export class Transfer {
 
             const result = await response.json();
             console.log('Transferência realizada com sucesso:', result);
-            alert('Transferência realizada com sucesso! 🎉'); // Feedback para o usuário
+            showCustomAlert('Transferência realizada com sucesso! 🎉'); // Feedback para o usuário
         } catch (error) {
             console.error('Falha ao realizar a transferência:', error);
-            alert(`Falha na transferência: ${error.message}`);
+            showCustomAlert(`Falha na transferência: ${error.message}`);
             throw error;
         }
     }

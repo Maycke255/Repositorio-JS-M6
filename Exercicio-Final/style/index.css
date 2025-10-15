@@ -101,7 +101,6 @@ header img {
 .operations-area  p {
     margin: 2rem;
     text-align: center;
-    /* font-size: clamp(1rem, 5vw, 1.5rem); */
 }
 
 /*========= Estilo proprio da caixa de seleção =========*/
@@ -309,23 +308,6 @@ header img {
     box-shadow: var(--shadow-light);
 }
 
-#nameSender:active, #valueTransfer:active, #nameRecipient:active {
-    margin: 1rem 0;
-    text-align: left;
-    border: 2.5px solid #e5e7ebb9;
-    background: var(--color-quintennial);
-    border-radius: .75rem;
-    font-size: 1rem;
-    font-weight: 500;
-    font-family: var(--font-secondary);
-    letter-spacing: 1.5px;
-    padding: .75rem 1.5rem;
-    width: 100%;
-    max-width: 100%;
-    color: var(--color-tertiary);
-    box-shadow: var(--shadow-light);
-}
-
 /* Efeito após passar por cima */
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
@@ -510,9 +492,31 @@ header img {
 }
 
 .error {
-    background-color: var(--color-error);
-    color: var(--color-tertiary);
-    font-style: italic;
+    background-color: var(--color-error) !important;
+    color: var(--color-tertiary) !important;
+    font-style: italic !important;
+}
+
+/* Para navegadores baseados em WebKit (Chrome, Safari, Edge, etc.) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    /* O truque principal: usa um box-shadow interno que se sobrepõe ao fundo do navegador.
+       Certifique-se de que a cor do box-shadow seja a mesma do background que você deseja. */
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-quintennial) inset !important; /* Cor de fundo do seu input */
+    
+    /* Define a cor do texto para que não seja a padrão do navegador no autofill */
+    -webkit-text-fill-color: var(--color-tertiary) !important; /* Cor do texto do seu input */
+
+    /* Uma transição longa pode "enganar" o navegador para não mostrar o fundo branco */
+    transition: background-color 5000s ease-in-out 0s;
+
+    /* Opcional: Se o navegador ainda tentar aplicar um background, isso ajuda. */
+    background-color: var(--color-quintennial) !important; /* Cor de fundo do seu input */
+
+    /* Garante que outras propriedades como borda permaneçam as suas */
+    border-color: #e5e7ebb9 !important; /* Cor da borda do seu input */
 }
 
 @media (prefers-color-scheme: light) {
