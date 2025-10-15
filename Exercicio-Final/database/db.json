@@ -1,4 +1,7 @@
 {
+  "users": [
+
+  ],
   "transfers": [
     {
       "id": "85e2",
@@ -22,6 +25,6 @@
       "recipientName": "Kaio"
     }
   ],
-  "deposit": [],
+  "deposits": [],
   "loans": []
 }

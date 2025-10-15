@@ -30,7 +30,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     transferContentWrapper.innerHTML = '';
     transferContentWrapper.classList.remove('transfer-section-active');
 
-    // --- CRIAÇÃO DOS ELEMENTOS ---
+    // --- CRIAÇÃO DOS ELEMENTOS --- //
     // Adicione a classe 'animated-element' a CADA um desses grupos que você quer animar.
 
     const subtitle = document.createElement('h2');
@@ -70,12 +70,22 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     const labelNameSender = document.createElement('label');
     labelNameSender.htmlFor = 'nameSender';
     labelNameSender.classList = 'name-sender';
-    labelNameSender.textContent = 'Nome da conta que ENVIARÁ o dinheiro, o remetente (nome do úsuario).'
+    labelNameSender.textContent = 'Nome da conta que ENVIARÁ o dinheiro, o remetente (nome do úsuario).';
 
     const nameSenderInput = document.createElement('input'); // Variável local do input
     nameSenderInput.type = 'text';
     nameSenderInput.id = 'nameSender';
-    nameSenderInput.name = 'senderName'
+    nameSenderInput.name = 'senderName';
+
+    const labelEmailSender = document.createElement('label');
+    labelEmailSender.htmlFor = 'emailSender';
+    labelEmailSender.classList = 'email-transfer-label';
+    labelEmailSender.textContent = 'Informe o e-mail de quem esta enviando, esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
+
+    const emailSenderInput = document.createElement('input'); // Variável local do input
+    emailSenderInput.type = 'email';
+    emailSenderInput.id = 'emailSender';
+    emailSenderInput.name = 'email-sender';
 
     const labelValueTransfer = document.createElement('label');
     labelValueTransfer.htmlFor = 'valueTransfer';
@@ -87,7 +97,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     valueTransferInput.id = 'valueTransfer';
     valueTransferInput.name = 'value';
 
-    senderGroup.append(labelNameSender, nameSenderInput, labelValueTransfer, valueTransferInput);
+    senderGroup.append(labelNameSender, nameSenderInput, labelValueTransfer, labelEmailSender, emailSenderInput, valueTransferInput);
 
     const recipientGroup = document.createElement('div');
     recipientGroup.className = 'recipient-group';
@@ -103,7 +113,17 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     nameRecipientInput.id = 'nameRecipient';
     nameRecipientInput.name = 'recipientName';
 
-    recipientGroup.append(labelNameRecipient, nameRecipientInput);
+    const labelEmailRecipient = document.createElement('label');
+    labelEmailRecipient.htmlFor = 'emailRecipient';
+    labelEmailRecipient.classList = 'email-transfer-label';
+    labelEmailRecipient.textContent = 'Informe o e-mail de quem esta recebendo, esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
+
+    const emailRecientInput = document.createElement('input'); // Variável local do input
+    emailRecientInput.type = 'email';
+    emailRecientInput.id = 'emailRecipient';
+    emailRecientInput.name = 'email-recipient';
+
+    recipientGroup.append(labelNameRecipient, nameRecipientInput, labelEmailRecipient, emailRecientInput);
 
     const buttonsTransfer = document.createElement('div');
     buttonsTransfer.className = 'btns-transfer-group';
@@ -210,7 +230,8 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
         try {
             // Chamamos o método assíncrono makeTransfer da instância
             // Usamos 'await' porque makeTransfer é um método assíncrono
-            await newTransfer.makeTransfer()
+            await newTransfer.makeTransfer();
+
     
             dateTransferInput.value = '';
             nameSenderInput.value = '';

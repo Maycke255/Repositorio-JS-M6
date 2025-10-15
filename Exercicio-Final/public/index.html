@@ -37,15 +37,17 @@
                 <div class="custom-select-wrapper">
                     <select name="box-selection" id="boxSelection">
                         <option value="" disabled selected hidden>Selecione uma opção...</option>
-                        <option value="Transferencias">Transferências</option>
-                        <option value="Deposits">Depositos</option>
-                        <option value="Loans">Empréstimos</option>
+                        <option value="users">Usuarios</option>
+                        <option value="transfers">Transferências</option>
+                        <option value="deposits">Depositos</option>
+                        <option value="loans">Empréstimos</option>
                     </select>
 
                     <div class="select-selected">Selecione uma opção...</div>
                     <div class="select-items select-hide">
-                        <div data-value="Transferencias">Transferências</div>
-                        <div data-value="Deposits">Depósitos</div>
+                        <div data-value="users">Usuarios</div>
+                        <div data-value="transfers">Transferências</div>
+                        <div data-value="deposits">Depósitos</div>
                         <div data-value="Loans">Empréstimos</div>
                     </div>
                 </div>
@@ -56,6 +58,15 @@
 
             <section id="operationsArea" class="operations-area">
                 <P>Selecione a opção desejada para fazer uma operação:</P>
+                <div class="users-area">
+                    <button id="displayUsersArea">Área de criação de Usuarios</button>
+                    <section id="userssSct">
+                        <div id="userContentWrapper"></div>
+                    </section>
+                </div>
+
+                <hr class="line">
+
                 <div class="transfers-area">
                     <button id="displayTransfersArea">Área de Transferência</button>
                     <section id="transfersSct">

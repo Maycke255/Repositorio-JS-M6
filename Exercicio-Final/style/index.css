@@ -201,17 +201,12 @@ header img {
 }
 
 
-#trasactions, #transfersSct, #depositSct, #loansSct {
+#trasactions, #userssSct, #transfersSct, #depositSct, #loansSct {
     margin: 1rem;
 }
-
-#displayTransfersArea, #displayDepositArea, #displayLoansArea {
-    margin: 1rem;
-}
-
 
 /*========= Estilos dos botões ========= */
-#displayTransactions, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
+#displayTransactions, #displayUsersArea, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
     background: var(--color-quaternary);
@@ -225,11 +220,11 @@ header img {
     justify-content: center;
     padding: 1.5rem 2.8rem;
     width: 100%;
-    max-height: 3rem;
-    max-width: 14rem;
+    max-height: 3.5rem;
+    max-width: 17rem;
     text-align: center;
-    white-space: nowrap;
-    word-break: break-word;
+    white-space: wrap;
+    word-break: normal;
     line-height: 1.2;
     color: var(--color-primary);
     cursor: pointer;
@@ -238,34 +233,40 @@ header img {
 }
 
 /* Efeito após passar por cima */
-.select-selected:hover, #displayTransactions:hover, #displayTransfersArea:hover, #displayDepositArea:hover, #displayLoansArea:hover {
+.select-selected:hover, #displayUsersArea:hover, #displayTransactions:hover, #displayTransfersArea:hover, 
+#displayDepositArea:hover, #displayLoansArea:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
 }
 
 /* Muda de escala quando clicavel */
-.select-selected:active, #displayTransactions:active, #displayTransfersArea:active, #displayDepositArea:active, #displayLoansArea:active {
+.select-selected:active, #displayUsersArea:active, #displayTransactions:active, #displayTransfersArea:active, 
+#displayDepositArea:active, #displayLoansArea:active {
     transform: scale(0.99);
 }
 
 /*========= Estilos das sections ========= */
 
-.subtitle, .subtitle-transfer {
+.subtitle, .subtitle-transfer, .subtitle-users {
     padding: 1rem;
 }
 
+.group-name, .group-email, .group-password, .group-capital, 
 .date-group, .sender-group, .recipient-group {
     display: flex;
     flex-direction: column;
     padding: 1rem;
 }
 
+.btns-user-group, 
 .btns-transfer-group, .group-date-btns {
     display: flex;
     flex-direction: column;
 }
 
-#dateTransfer, #btnTransferToday, #executeTransfer, #collectSection {
+#createUser, 
+#dateTransfer, #btnTransferToday, #executeTransfer, 
+#collectSection {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
     background: var(--color-quaternary);
@@ -291,7 +292,8 @@ header img {
     box-shadow: var(--shadow-light);
 }
 
-#nameSender, #valueTransfer, #nameRecipient {
+#nameUser, #emailUser, #passwordUser, #capitalUser, 
+#nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
@@ -309,17 +311,19 @@ header img {
 }
 
 /* Efeito após passar por cima */
+#createUser:hover,
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
 }
 
 /* Muda de escala quando clicavel */
+#createUser:active, 
 #dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, #collectSection:active {
     transform: scale(0.99);
 }
 
-/* Container para o conteúdo dinâmico. Inicialmente não ativo. */
+/* ===== Container para o conteúdo dinâmico. Inicialmente não ativo. ====== */
 
 /* Estilo base para cada elemento que será animado individualmente */
 /* Eles começarão invisíveis, colapsados e ligeiramente acima */
@@ -332,7 +336,7 @@ header img {
     /* Ajuste os tempos conforme quão rápido/lento você quer a animação */
 }
 
-/* Estado ativo: quando a classe é adicionada ao #transferContentWrapper */
+/* Estado ativo: quando a classe é adicionada ao #transferContentWrapper === TRANSFERENCIA === */
 /* Todos os elementos .animated-element dentro de um .transfer-section-active se tornam visíveis e se movem para a posição */
 .transfer-section-active .animated-element {
     opacity: 1;
@@ -340,7 +344,7 @@ header img {
     transform: translateY(0);
 }
 
-/* Efeito Cascata: Atrasos para cada tipo de elemento */
+/* Efeito Cascata: Atrasos para cada tipo de elemento === TRANSFERENCIAS ===*/
 /* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
 .transfer-section-active .subtitle-transfer {
     transition-delay: 0s; /* Aparece primeiro */
@@ -355,6 +359,31 @@ header img {
     transition-delay: 0.3s;
 }
 .transfer-section-active .btns-transfer-group {
+    transition-delay: 0.4s; /* Aparece por último */
+}
+
+/* === USUARIOS === */
+.users-section-active .animated-element {
+    opacity: 1;
+    max-height: 500px; /* Um valor grande o suficiente para acomodar o conteúdo sem cortar */
+    transform: translateY(0);
+}
+
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.users-section-active .subtitle-users {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.users-section-active .name-users {
+    transition-delay: 0.1s;
+}
+.users-section-active .email-users {
+    transition-delay: 0.2s;
+}
+.users-section-active .password-users {
+    transition-delay: 0.3s;
+}
+.users-section-active .capital-users {
     transition-delay: 0.4s; /* Aparece por último */
 }
 
