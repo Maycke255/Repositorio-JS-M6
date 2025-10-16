@@ -1,41 +1,59 @@
+// ARQUIVO: DOMtransfer.js
+
 import { displayTransfersArea, transfersSct } from "./elements.js";
 import { Transfer } from "../controller/Transfer.js";
 import { showCustomAlert } from "../app.js";
 
+// Regex para validação de email
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/; // <<-- Adicionado
+
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
-// Esta função buscará o usuário no json-server e retornará o objeto do usuário
-// ou null se não encontrar, ou lançará um erro se a API falhar.
 async function findUserByEmail(email) {
     try {
-        const response = await fetch(`http://localhost:3000/users?email=${encodeURIComponent(email)}`);
+        const response = await fetch(`http://localhost:3000/users?email=${encodeURIComponent(email)}`); // <<-- CORRIGIDO: 'email' na query
         if (!response.ok) {
             throw new Error(`Erro ao buscar usuário por e-mail: ${response.status} - ${response.statusText}`);
         }
         const users = await response.json();
-        return users.length > 0 ? users[0] : null; // Retorna o primeiro usuário encontrado ou null
+        return users.length > 0 ? users[0] : null;
     } catch (error) {
         console.error('Erro ao buscar usuário:', error);
-        // Não exibe um alerta aqui para não interromper múltiplos checks (sender/recipient)
-        throw error; // Propaga o erro para ser tratado no contexto da chamada
+        throw error;
     }
 }
 
-// ========================= EVENTLISTERNS DA AREA DE TRANSFERENCIA ========================= //
+// Função para esconder e remover a seção de transferência (mantida)
+function hideTransferSection(wrapperElement) {
+    if (!wrapperElement || !wrapperElement.classList.contains('transfer-section-active')) {
+        return;
+    }
+    wrapperElement.classList.remove('transfer-section-active');
+    const lastAnimatedElement = wrapperElement.querySelector('.btns-transfer-group');
+
+    if (!lastAnimatedElement) {
+        setTimeout(() => { wrapperElement.innerHTML = ''; }, 600);
+        return;
+    }
+
+    lastAnimatedElement.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
+            wrapperElement.innerHTML = '';
+            lastAnimatedElement.removeEventListener('transitionend', handler);
+        }
+    }, { once: true });
+}
+
+// ========================= EVENT LISTENERS DA ÁREA DE TRANSFERÊNCIA ========================= //
 export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) => {
    ev.preventDefault();
 
     let transferContentWrapper = transfersSct.querySelector('#transferContentWrapper');
 
-    // Se já existe e tem conteúdo, não recriar, ou podemos adicionar uma lógica para ocultar e depois mostrar.
-    // Para simplificar, vamos verificar se já está ativo/com conteúdo.
     if (transferContentWrapper && transferContentWrapper.innerHTML !== '') {
         console.log('Seção de transferência já está visível ou sendo animada.');
-        // Opcional: Se quiser que o botão atue como toggle, chame hideTransferSection aqui.
-        // hideTransferSection(transferContentWrapper);
         return;
     }
 
-    // Garante que o wrapper existe. Se não existir, cria.
     if (!transferContentWrapper) {
         transferContentWrapper = document.createElement('form');
         transferContentWrapper.id = 'transferContentWrapper';
@@ -44,20 +62,18 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
         transfersSct.append(transferContentWrapper);
     }
 
-    // Limpa qualquer conteúdo anterior e remove a classe ativa (garante o estado inicial)
     transferContentWrapper.innerHTML = '';
     transferContentWrapper.classList.remove('transfer-section-active');
 
     // --- CRIAÇÃO DOS ELEMENTOS --- //
-    // Adicione a classe 'animated-element' a CADA um desses grupos que você quer animar.
 
     const subtitle = document.createElement('h2');
-    subtitle.classList.add('subtitle-transfer', 'animated-element'); // Adicionado 'animated-element'
+    subtitle.classList.add('subtitle-transfer', 'animated-element');
     subtitle.textContent = 'Insira as informações para a transferência.';
 
     const dateGroup = document.createElement('div');
     dateGroup.className = 'date-group';
-    dateGroup.classList.add('animated-element'); // Adicionado 'animated-element'
+    dateGroup.classList.add('animated-element');
 
     const labelDate = document.createElement('label');
     labelDate.htmlFor = 'dateTransfer';
@@ -67,32 +83,33 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     const groupDateBtns = document.createElement('div');
     groupDateBtns.classList = 'group-date-btns';
 
-    const dateTransferInput = document.createElement('input'); // Variável local do input
+    const dateTransferInput = document.createElement('input');
     dateTransferInput.type = 'date';
     dateTransferInput.required = true;
     dateTransferInput.id = 'dateTransfer';
-    dateTransferInput.name = 'date'
+    dateTransferInput.name = 'date';
 
-    const todayDateButton = document.createElement('button'); // Variável local do botão
+    const todayDateButton = document.createElement('button');
     todayDateButton.id = 'btnTransferToday';
     todayDateButton.textContent = 'Transferir Hoje';
-    todayDateButton.type = 'button'; // <<-- Importante: Definir como 'button' para não acionar o submit do form
+    todayDateButton.type = 'button';
 
     groupDateBtns.append(dateTransferInput, todayDateButton);
     dateGroup.append(labelDate, groupDateBtns);
 
     const senderGroup = document.createElement('div');
     senderGroup.className = 'sender-group';
-    senderGroup.classList.add('animated-element'); // Adicionado 'animated-element'
+    senderGroup.classList.add('animated-element');
 
     const labelNameSender = document.createElement('label');
     labelNameSender.htmlFor = 'nameSender';
     labelNameSender.classList = 'name-sender';
     labelNameSender.textContent = 'Nome da conta que ENVIARÁ o dinheiro, o remetente (nome do úsuario).';
 
-    const nameSenderInput = document.createElement('input'); // Variável local do input
+    const nameSenderInput = document.createElement('input');
     nameSenderInput.type = 'text';
     nameSenderInput.id = 'nameSender';
+    nameSenderInput.required = true;
     nameSenderInput.name = 'senderName';
 
     const labelEmailSender = document.createElement('label');
@@ -100,35 +117,40 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     labelEmailSender.classList = 'email-transfer-label';
     labelEmailSender.textContent = 'Informe o e-mail de quem esta enviando, esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
 
-    const emailSenderInput = document.createElement('input'); // Variável local do input
+    const emailSenderInput = document.createElement('input');
     emailSenderInput.type = 'email';
     emailSenderInput.id = 'emailSender';
-    emailSenderInput.name = 'email-sender';
+    emailSenderInput.required = true;
+    emailSenderInput.name = 'emailSender'; // <<-- CORRIGIDO: Consistente com Transfer.js
 
     const labelValueTransfer = document.createElement('label');
     labelValueTransfer.htmlFor = 'valueTransfer';
     labelValueTransfer.classList = 'value-transfer-label';
     labelValueTransfer.textContent = 'Informe o valor a ser transferido.';
 
-    const valueTransferInput = document.createElement('input'); // Variável local do input
-    valueTransferInput.type = 'text';
+    const valueTransferInput = document.createElement('input');
+    valueTransferInput.type = 'number'; // <<-- Sugestão: type="number" para melhor UX
     valueTransferInput.id = 'valueTransfer';
+    valueTransferInput.required = true;
     valueTransferInput.name = 'value';
+    valueTransferInput.min = '0.01'; // Mínimo para transferência
+    valueTransferInput.step = 'any'; // Permite decimais se o tipo for number
 
     senderGroup.append(labelNameSender, nameSenderInput, labelEmailSender, emailSenderInput, labelValueTransfer, valueTransferInput);
 
     const recipientGroup = document.createElement('div');
     recipientGroup.className = 'recipient-group';
-    recipientGroup.classList.add('animated-element'); // Adicionado 'animated-element'
+    recipientGroup.classList.add('animated-element');
 
     const labelNameRecipient = document.createElement('label');
     labelNameRecipient.htmlFor = 'nameRecipient';
     labelNameRecipient.classList = 'name-recipient';
     labelNameRecipient.textContent = 'Nome da conta que RECEBERÁ o dinheiro, o destinatário (nome do úsuario).';
 
-    const nameRecipientInput = document.createElement('input'); // Variável local do input
+    const nameRecipientInput = document.createElement('input');
     nameRecipientInput.type = 'text';
     nameRecipientInput.id = 'nameRecipient';
+    nameRecipientInput.required = true;
     nameRecipientInput.name = 'recipientName';
 
     const labelEmailRecipient = document.createElement('label');
@@ -136,112 +158,103 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     labelEmailRecipient.classList = 'email-transfer-label';
     labelEmailRecipient.textContent = 'Informe o e-mail de quem esta recebendo, esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
 
-    const emailRecipientInput = document.createElement('input'); // Variável local do input
+    const emailRecipientInput = document.createElement('input');
     emailRecipientInput.type = 'email';
     emailRecipientInput.id = 'emailRecipient';
-    emailRecipientInput.name = 'email-recipient';
+    emailRecipientInput.required = true;
+    emailRecipientInput.name = 'emailRecipient'; // <<-- CORRIGIDO: Consistente com Transfer.js
 
     recipientGroup.append(labelNameRecipient, nameRecipientInput, labelEmailRecipient, emailRecipientInput);
 
     const buttonsTransfer = document.createElement('div');
     buttonsTransfer.className = 'btns-transfer-group';
-    buttonsTransfer.classList.add('animated-element'); // Adicionado 'animated-element'
+    buttonsTransfer.classList.add('animated-element');
 
-    const executeTransferButton = document.createElement('button'); // Variável local do botão
+    const executeTransferButton = document.createElement('button');
     executeTransferButton.id = 'executeTransfer';
     executeTransferButton.textContent = 'Realizar Transferência';
-    executeTransferButton.type = 'submit'; // <<-- Importante: Definir como 'submit' para acionar o evento submit do form
+    executeTransferButton.type = 'submit';
 
-    const collectSectionButton = document.createElement('button'); // Variável local do botão
+    const collectSectionButton = document.createElement('button');
     collectSectionButton.id = 'collectSection';
     collectSectionButton.textContent = 'Recolher Seção';
     collectSectionButton.type = 'button';
 
     buttonsTransfer.append(executeTransferButton, collectSectionButton);
 
-    // Adiciona todos os elementos ao wrapper
     transferContentWrapper.append(subtitle, dateGroup, senderGroup, recipientGroup, buttonsTransfer);
 
-    // --- LÓGICA DA ANIMAÇÃO DE APARECER ---
-    // Usamos requestAnimationFrame ou setTimeout para garantir que o navegador
-    // tenha tempo de renderizar o estado inicial (opacity:0, max-height:0)
-    // ANTES de adicionar a classe que aciona a transição.
     requestAnimationFrame(() => {
         transferContentWrapper.classList.add('transfer-section-active');
     });
 
     // --- AGORA, EVENT LISTENERS AQUI, APÓS A CRIAÇÃO DOS ELEMENTOS ---
-    // --- BOTÃO DA DATA ---
     todayDateButton.addEventListener('click', (ev) => {
         ev.preventDefault();
-
         const today = new Date();
-
-        const day = String(today.getDate()).padStart(2, "0");       // dia com 2 dígitos
-        const month = String(today.getMonth() + 1).padStart(2, "0"); // meses começam do 0
+        const day = String(today.getDate()).padStart(2, "0");
+        const month = String(today.getMonth() + 1).padStart(2, "0");
         const year = today.getFullYear();
-
         dateTransferInput.value = `${year}-${month}-${day}`;
     });
 
-    // --- REALIZAR A TRANSFERENCIA ---
+    // <<-- CORRIGIDO: Listener no formulário (transferContentWrapper) para 'submit'
     executeTransferButton.addEventListener('click', async (ev) => {
         ev.preventDefault();
-    
-        const date = dateTransferInput.value;
-        const nameSender = nameSenderInput.value;
-        const emailSender = emailSenderInput.value;
-        const nameRecipient = nameRecipientInput.value;
-        const emailRecipient = emailRecipientInput.value;
+
+        // 1. Coleta e sanitização dos dados dos inputs
+        const dateString = dateTransferInput.value.trim();
+        const nameSender = nameSenderInput.value.trim();
+        const emailSender = emailSenderInput.value.trim();
         const valueTransfer = parseFloat(valueTransferInput.value);
+        const nameRecipient = nameRecipientInput.value.trim();
+        const emailRecipient = emailRecipientInput.value.trim();
 
-        if (!date || !nameSender || valueTransfer <= 0 || !nameRecipient) {
-            showCustomAlert('Por favor, preencha todos os campos!');
+        let firstErrorInput = null; // <<-- CORRIGIDO: Nome da variável consistente
 
-            dateTransferInput.classList.add('error');
-            dateTransferInput.focus();
-            nameSenderInput.classList.add('error');
-            nameSenderInput.focus();
-            nameRecipientInput.classList.add('error');
-            nameRecipientInput.focus();
-            valueTransferInput.classList.add('error');
-            valueTransferInput.focus();
+        // 2. Validação de campos vazios (já usando 'required' nos inputs, mas é bom ter uma camada JS)
+        if (!dateString) { showCustomAlert('Por favor, selecione a data da transferência.'); firstErrorInput = dateTransferInput; }
+        else if (!nameSender) { showCustomAlert('Por favor, informe o nome do remetente.'); firstErrorInput = nameSenderInput; }
+        else if (!emailSender) { showCustomAlert('Por favor, informe o e-mail do remetente.'); firstErrorInput = emailSenderInput; } // <<-- CORRIGIDO: input para emailSenderInput
+        else if (isNaN(valueTransfer) || valueTransfer <= 0) { showCustomAlert('Por favor, informe um valor de transferência válido e positivo.'); firstErrorInput = valueTransferInput; }
+        else if (!nameRecipient) { showCustomAlert('Por favor, informe o nome do destinatário.'); firstErrorInput = nameRecipientInput; }
+        else if (!emailRecipient) { showCustomAlert('Por favor, informe o e-mail do destinatário.'); firstErrorInput = emailRecipientInput; }
 
-            setTimeout(function () {
-                dateTransferInput.classList.remove('error');
-                nameSenderInput.classList.remove('error');
-                nameRecipientInput.classList.remove('error');
-                valueTransferInput.classList.remove('error');
-            }, 2200);
-                return;
-            }
-
-            if (isNaN(valueTransfer)) {
-                showCustomAlert('Digite apenas números!');
-
-                valueTransferInput.classList.add('error');
-                valueTransferInput.focus();
-
-                setTimeout(() => {
-                    valueTransferInput.classList.remove('error');
-                }, 2200);
+        if (firstErrorInput) {
+            firstErrorInput.classList.add('error');
+            firstErrorInput.focus();
+            setTimeout(() => firstErrorInput.classList.remove('error'), 2200);
             return;
         }
 
-        const lettersOnlyRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
+        // 3. Validação de formato de e-mail (usando Regex)
+        if (!emailRegex.test(emailSender)) { showCustomAlert('O e-mail do remetente não tem um formato válido.'); firstErrorInput = emailSenderInput; }
+        else if (!emailRegex.test(emailRecipient)) { showCustomAlert('O e-mail do destinatário não tem um formato válido.'); firstErrorInput = emailRecipientInput; }
 
-        if (!lettersOnlyRegex.test(nameSender) || !lettersOnlyRegex.test(nameRecipient)) {
-            showCustomAlert('Os campos de remetente e destinatário devem conter apenas letras e espaços!');
+        if (firstErrorInput) {
+            firstErrorInput.classList.add('error');
+            firstErrorInput.focus();
+            setTimeout(() => firstErrorInput.classList.remove('error'), 2200);
+            return;
+        }
 
-            nameSenderInput.classList.add('error');
-            nameSenderInput.focus();
-            nameRecipientInput.classList.add('error');
-            nameRecipientInput.focus();
+        // 4. Validação da data (Data válida e não menor que hoje) <<-- Adicionado de volta
+        const selectedDate = new Date(dateString + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-            setTimeout(() => {
-                nameSenderInput.classList.remove('error');
-                nameRecipientInput.classList.remove('error');
-            }, 2200);
+        if (isNaN(selectedDate.getTime())) {
+            showCustomAlert('A data inserida não é válida. Por favor, selecione uma data real.');
+            dateTransferInput.classList.add('error');
+            dateTransferInput.focus();
+            setTimeout(() => dateTransferInput.classList.remove('error'), 2200);
+            return;
+        }
+        if (selectedDate.getTime() < today.getTime()) {
+            showCustomAlert('A data da transferência não pode ser menor que a data de hoje. Por favor, selecione uma data futura ou a data de hoje.');
+            dateTransferInput.classList.add('error');
+            dateTransferInput.focus();
+            setTimeout(() => dateTransferInput.classList.remove('error'), 2200);
             return;
         }
 
@@ -254,90 +267,91 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
             setTimeout(() => { emailSenderInput.classList.remove('error'); emailRecipientInput.classList.remove('error'); }, 2200);
             return;
         }
-    
-        const newTransfer = new Transfer(date, nameSender, valueTransfer, nameRecipient);
-    
+        
+        // 6. Verificação de existência dos usuários e saldo (operação assíncrona)
         try {
-            // Chamamos o método assíncrono makeTransfer da instância
-            // Usamos 'await' porque makeTransfer é um método assíncrono
-            const findEmailSender = findUserByEmail(emailSender);
-            const findEmailRecipient = findUserByEmail(emailRecipient);
+            // <<-- CORRIGIDO: AGUARDAR as promessas de findUserByEmail
+            const senderUser = await findUserByEmail(emailSender);
+            const recipientUser = await findUserByEmail(emailRecipient);
 
-            if (!findEmailSender) {
+            if (!senderUser) {
                 showCustomAlert(`Remetente com e-mail "${emailSender}" não encontrado. Por favor, verifique.`);
                 emailSenderInput.classList.add('error');
                 emailSenderInput.focus();
-                setTimeout(() => {
-                    emailSenderInput.classList.remove('error');
-                }, 2200);
+                setTimeout(() => emailSenderInput.classList.remove('error'), 2200);
+                return;
             }
 
-            if (!findEmailRecipient) {
-                showCustomAlert(`Destinatario com e-mail "${emailRecipient}" não encontrado. Por favor, verifique.`);
+            if (!recipientUser) {
+                showCustomAlert(`Destinatário com e-mail "${emailRecipient}" não encontrado. Por favor, verifique.`);
                 emailRecipientInput.classList.add('error');
                 emailRecipientInput.focus();
-                setTimeout(() => {
-                    emailRecipientInput.classList.remove('error');
-                }, 2200)
+                setTimeout(() => emailRecipientInput.classList.remove('error'), 2200);
+                return;
+            }
+            // <<-- CORRIGIDO: A variável do usuário real é 'senderUser', não 'findEmailSender'
+            if (senderUser.capital < valueTransfer) {
+                showCustomAlert(`Saldo insuficiente para ${senderUser.name}. Capital atual: R$ ${senderUser.capital.toFixed(2)}.`);
+                valueTransferInput.classList.add('error');
+                valueTransferInput.focus();
+                setTimeout(() => valueTransferInput.classList.remove('error'), 2200);
+                return;
             }
 
-            if (findEmailSender.capital < valueTransfer) {
-                
-            }
+            // =========================================================================
+            // Se chegamos aqui, todas as validações básicas e de existência/saldo passaram!
+            // Agora, vamos realizar a transação:
+            // 1. Atualizar o capital do remetente.
+            // 2. Atualizar o capital do destinatário.
+            // 3. Registrar a transferência.
 
-            await newTransfer.makeTransfer();
+            const newSenderCapital = senderUser.capital - valueTransfer;
+            const newRecipientCapital = recipientUser.capital + valueTransfer;
 
-    
+            // Atualiza o capital do remetente
+            await fetch(`http://localhost:3000/users/${senderUser.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ capital: newSenderCapital }) // <<-- CORRIGIDO: 'capital' ao invés de 'userCapital'
+            });
+
+            // Atualiza o capital do destinatário
+            await fetch(`http://localhost:3000/users/${recipientUser.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ capital: newRecipientCapital }) // <<-- CORRIGIDO: 'capital' ao invés de 'userCapital'
+            });
+
+            // Cria a transferência (somente após as atualizações de saldo)
+            const newTransfer = new Transfer(
+                dateString,
+                nameSender,
+                emailSender,
+                valueTransfer,
+                nameRecipient,
+                emailRecipient
+            );
+
+            await newTransfer.makeTransfer(); // Este método agora só faz o POST da transferência
+            showCustomAlert('Transferência realizada com sucesso! 🎉'); // Feedback de sucesso final
+
+            // Limpa os campos após a transferência bem-sucedida e atualizações
             dateTransferInput.value = '';
             nameSenderInput.value = '';
+            emailSenderInput.value = '';
             valueTransferInput.value = '';
             nameRecipientInput.value = '';
-        } catch (message) {
-            showCustomAlert('Erro ao processar a transferência no app.js, verifique o console para mais informações.')
-            console.error('Erro ao processar a transferência no app.js:', message);
+            emailRecipientInput.value = '';
+
+        } catch (error) { // <<-- CORRIGIDO: Parâmetro 'error' aqui
+            showCustomAlert('Ocorreu um erro durante a verificação ou processamento da transferência. Verifique o console.');
+            console.error(`Erro detalhado durante a verificação/processamento:`, error); // <<-- CORRIGIDO: Acessando 'error' corretamente
         }
     });
 
-
-    // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO ---
-    collectSection.addEventListener('click', (e) => {
+    // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO --- <<-- CORRIGIDO: FORA do listener de submit
+    collectSectionButton.addEventListener('click', (e) => {
         e.preventDefault();
-        hideTransferSection(transferContentWrapper); // Chama a função para esconder e remover
+        hideTransferSection(transferContentWrapper);
     });
 });
-
-// Função para esconder e remover a seção de transferência
-function hideTransferSection(wrapperElement) {
-    if (!wrapperElement || !wrapperElement.classList.contains('transfer-section-active')) {
-        return; // A seção já está escondida ou não é o wrapper correto
-    }
-
-    wrapperElement.classList.remove('transfer-section-active'); // Remove a classe para iniciar a animação de esconder
-
-    // Encontra o último elemento animado para saber quando a transição terminou.
-    // Baseado nos transition-delays do CSS, .btns-transfer-group tem o maior delay.
-    const lastAnimatedElement = wrapperElement.querySelector('.btns-transfer-group');
-
-    // Se não houver elementos animados ou o lastAnimatedElement for null,
-    // removemos o conteúdo diretamente após um tempo razoável.
-    if (!lastAnimatedElement) {
-        setTimeout(() => {
-            wrapperElement.innerHTML = '';
-        }, 600); // Um pouco mais que a duração da transição mais longa
-        return;
-    }
-
-    // Adiciona um listener para o evento 'transitionend' no último elemento a animar.
-    // 'once: true' garante que o listener seja removido automaticamente após a primeira execução.
-    lastAnimatedElement.addEventListener('transitionend', function handler(e) {
-        // Assegura que o evento transitionend é para a propriedade que estamos animando (e.g., opacity, max-height)
-        // E que é o último elemento a terminar sua animação
-        if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
-            wrapperElement.innerHTML = ''; // Limpa o conteúdo após a animação de recolhimento
-            // Note: O wrapperElement ainda existirá, mas estará vazio.
-            // Se precisar remover o próprio wrapperElement, você pode adicionar wrapperElement.remove();
-            // Mas é bom mantê-lo para futura reutilização, apenas com innerHTML=''
-            lastAnimatedElement.removeEventListener('transitionend', handler); // Limpa o listener (se 'once' não for suportado ou para clareza)
-        }
-    }, { once: true });
-}

@@ -1,28 +1,29 @@
 {
   "users": [
-
+    {
+      "id": "b771",
+      "name": "Maycke",
+      "email": "reydsonk@gmail.com",
+      "password": "123456",
+      "capital": 1200
+    },
+    {
+      "id": "aa76",
+      "name": "Kaio",
+      "email": "aaa@gmail.com",
+      "password": "123456",
+      "capital": 1000
+    }
   ],
   "transfers": [
     {
-      "id": "85e2",
-      "date": "2025-10-14",
-      "senderName": "Maycke Alexandre",
-      "valueTransfer": null,
-      "recipientName": "Kaio"
-    },
-    {
-      "id": "4726",
-      "date": "2025-10-14",
-      "senderName": "Maycke Alexandre",
-      "valueTransfer": 1500,
-      "recipientName": "484761"
-    },
-    {
-      "id": "1217",
-      "date": "2025-10-14",
-      "senderName": "123456",
-      "valueTransfer": 1500,
-      "recipientName": "Kaio"
+      "id": "e7f0",
+      "date": "2025-10-16",
+      "senderName": "Kaio",
+      "emailSender": "aaa@gmail.com",
+      "valueTransfer": 200,
+      "recipientName": "Maycke",
+      "emailRecipient": "reydsonk@gmail.com"
     }
   ],
   "deposits": [],

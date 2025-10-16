@@ -27,11 +27,10 @@ class User {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                showCustomAlert('Erro ao fazer comunicação com o banco de dados');
-                throw new Error(`Erro ao realizar a trasnferencia: ${response.status} - ${errorData.message || response.statusText}`);
+                throw new Error(`Erro ao cadastrar usuario: ${response.status} - ${errorData.message || response.statusText}`);
             }
 
-            const result = response.json();
+            const result = await response.json();
             console.log('Usuario cadastrado com sucesso:', result);
             showCustomAlert('Usuario cadastrado com sucesso! 🎉'); // Feedback para o usuário
         } catch (error) {

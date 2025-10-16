@@ -126,3 +126,4 @@ export { showCustomAlert }
 /* ===== CHAMANDO A FUNÇÃO DE TRANSFERENCIA ===== */
 
 import { trasnferArea } from "./entities/DOMtransfers.js";
+import { userArea } from "./entities/DOMusers.js";

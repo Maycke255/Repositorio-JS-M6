@@ -2,17 +2,36 @@ import { showCustomAlert } from "../app.js";
 import { User } from "../controller/User.js";
 import { userssSct, displayUsersArea } from "./elements.js";
 
+function hideUserSection(wrapperElement) {
+    if (!wrapperElement || !wrapperElement.classList.contains('users-section-active')) {
+        return;
+    }
+    wrapperElement.classList.remove('users-section-active');
+    const lastAnimatedElement = wrapperElement.querySelector('.btns-user-group');
+
+    if (!lastAnimatedElement) {
+        setTimeout(() => { wrapperElement.innerHTML = ''; }, 600);
+        return;
+    }
+
+    lastAnimatedElement.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
+            wrapperElement.innerHTML = '';
+            lastAnimatedElement.removeEventListener('transitionend', handler);
+        }
+    },
+    { once: true });
+}
 
 async function checkEmailExist (email) {
     try {
-        const response = await fetch('http://localhost:3000/users');
+        const response = await fetch(`http://localhost:3000/users?email=${encodeURIComponent(email)}`);
 
         if (!response.ok) {
-            const errorData = await response.json(); // Tenta ler o corpo do erro para mais detalhes
-            throw new Error(`Erro ao acessar o banco de dados: ${response.status} - ${errorData.message || response.statusText}`);
+            throw new Error(`Erro ao acessar o banco de dados: ${response.status} - ${response.statusText}`);
         }
 
-        const users = response.json();
+        const users = await response.json();
 
         const userFound = users.find(u => u.email === email);
         return !!userFound // Retorna true se encontrar, false caso contrário
@@ -23,10 +42,10 @@ async function checkEmailExist (email) {
     }
 }
 
-const userArea = displayUsersArea.addEventListener('click', (ev) => {
+export const userArea = displayUsersArea.addEventListener('click', (ev) => {
     ev.preventDefault();
 
-    let userContentWrapper = transfersSct.querySelector('#userContentWrapper');
+    let userContentWrapper = userssSct.querySelector('#userContentWrapper');
 
     // Se já existe e tem conteúdo, não recriar, ou podemos adicionar uma lógica para ocultar e depois mostrar.
     // Para simplificar, vamos verificar se já está ativo/com conteúdo.
@@ -42,7 +61,7 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
         userContentWrapper.id = 'userContentWrapper';
         userContentWrapper.method = 'POST';
         userContentWrapper.action = 'http://localhost:3000/users'
-        transfersSct.append(userContentWrapper);
+        userssSct.append(userContentWrapper);
     }
 
     // Limpa qualquer conteúdo anterior e remove a classe ativa (garante o estado inicial)
@@ -55,6 +74,7 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
     const subtitle = document.createElement('h2');
     subtitle.classList.add('subtitle-users', 'animated-element'); // Adicionado 'animated-element'
     subtitle.textContent = 'Insira as informações para a criação de um úsuario.';
+    userContentWrapper.append(subtitle);
 
     const groupName = document.createElement('div');
     groupName.classList = 'group-name';
@@ -68,6 +88,7 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
     const nameUserInput = document.createElement('input'); // Variável local do input
     nameUserInput.type = 'text';
     nameUserInput.id = 'nameUser';
+    nameUserInput.required = true;
     nameUserInput.name = 'userName';
 
     groupName.append(labelName, nameUserInput);
@@ -82,11 +103,12 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
     labelEmail.textContent = 'Insira o email do usuario a ser cadastrado (precisa conter @, gmail e .com).';
 
     const emailUserInput = document.createElement('input'); // Variável local do input
-    emailUserInput.type = 'text';
+    emailUserInput.type = 'email';
     emailUserInput.id = 'emailUser';
-    emailUserInput.name = 'userEmail';
+    emailUserInput.required = true;
+    emailUserInput.name = 'email';
 
-    groupEmail.append(labelEmail, labelCapital);
+    groupEmail.append(labelEmail, emailUserInput);
 
     const groupPassword = document.createElement('div');
     groupPassword.classList = 'group-password';
@@ -100,13 +122,14 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
     const passwordUserInput = document.createElement('input'); // Variável local do input
     passwordUserInput.type = 'password';
     passwordUserInput.id = 'passwordUser';
-    passwordUserInput.name = 'userPassword';
+    passwordUserInput.required = true;
+    passwordUserInput.name = 'password';
 
     groupPassword.append(labelPassword, passwordUserInput);
     
-    const groupaCapital = document.createElement('div');
-    groupaCapital.classList = 'group-capital';
-    groupaCapital.classList.add('capital-users', 'animated-element'); // Adicionado 'animated-element'
+    const groupCapital = document.createElement('div');
+    groupCapital.classList = 'group-capital';
+    groupCapital.classList.add('capital-users', 'animated-element'); // Adicionado 'animated-element'
 
     const labelCapital = document.createElement('label');
     labelCapital.htmlFor = 'capitalUser';
@@ -116,28 +139,29 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
     const capitalUserInput = document.createElement('input'); // Variável local do input
     capitalUserInput.type = 'number';
     capitalUserInput.id = 'capitalUser';
-    capitalUserInput.name = 'userCapital';
+    capitalUserInput.name = 'capital';
+    capitalUserInput.required = true;
     capitalUserInput.min = '0'
-    capitalUserInput.step = '100'; 
+    capitalUserInput.step = '1'; 
 
-    groupaCapital.append(labelCapital, capitalUserInput);
+    groupCapital.append(labelCapital, capitalUserInput);
 
     const buttonsCreateUser = document.createElement('div');
     buttonsCreateUser.className = 'btns-user-group';
     buttonsCreateUser.classList.add('animated-element'); // Adicionado 'animated-element'
 
     const createUserButton = document.createElement('button'); // Variável local do botão
+    createUserButton.type = 'submit'; // <<-- Importante: Definir como 'submit' para acionar o evento submit do form
     createUserButton.id = 'createUser';
     createUserButton.textContent = 'Criar Usuario';
-    createUserButton.type = 'submit'; // <<-- Importante: Definir como 'submit' para acionar o evento submit do form
 
     const collectSectionButton = document.createElement('button'); // Variável local do botão
+    collectSectionButton.type = 'button';
     collectSectionButton.id = 'collectSection';
     collectSectionButton.textContent = 'Recolher Seção';
-    collectSectionButton.type = 'button';
 
     buttonsCreateUser.append(createUserButton, collectSectionButton);
-    userContentWrapper.append(groupName, groupEmail, groupPassword, groupaCapital, buttonsCreateUser);
+    userContentWrapper.append(groupName, groupEmail, groupPassword, groupCapital, buttonsCreateUser);
 
     // --- LÓGICA DA ANIMAÇÃO DE APARECER ---
     // Usamos requestAnimationFrame ou setTimeout para garantir que o navegador
@@ -153,26 +177,19 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
         const nameV = nameUserInput.value;
         const emailV = emailUserInput.value;
         const passwordV = passwordUserInput.value;
-        const capitalV = parseFloat(capitalUserInput.value);
+        const capitalV = parseFloat(capitalUserInput.value.trim());
 
-        if (!nameV || !emailV || !passwordV || !capitalV || capitalV < 0) {
-            showCustomAlert('Por favor, preencha todos os campos e o valor do capital inicial não pode ser nulo.');
+        let fistErrorInput = null;
 
-            nameUserInput.classList.add('error');
-            nameUserInput.focus();
-            emailUserInput.classList.add('error');
-            emailUserInput.focus();
-            passwordUserInput.classList.add('error');
-            passwordUserInput.focus();
-            capitalUserInput.classList.add('error');
-            capitalUserInput.focus();
+        if (!nameV) {showCustomAlert('Por favor, preencha o nome do usuario'); fistErrorInput = nameUserInput}
+        else if (!emailV) { showCustomAlert('Por favor, preencha o e-mail do usuário.'); fistErrorInput = emailUserInput; }
+        else if (!passwordV) { showCustomAlert('Por favor, preencha a senha do usuário.'); fistErrorInput = passwordUserInput; }
+        else if (!capitalUserInput) { showCustomAlert('Por favor, preencha o capital inicial do usuário.'); fistErrorInput = capitalUserInput; }
 
-            setTimeout(() => {
-                nameUserInput.classList.remove('error');
-                emailUserInput.classList.remove('error');
-                passwordUserInput.classList.remove('error');
-                capitalUserInput.classList.remove('error');
-            }, 2200);
+        if (fistErrorInput) {
+            fistErrorInput.classList.add('error');
+            fistErrorInput.focus();
+            setTimeout(() => fistErrorInput.classList.remove('error'), 2200);
             return;
         }
 
@@ -200,29 +217,34 @@ const userArea = displayUsersArea.addEventListener('click', (ev) => {
             return;
         }
 
-        const emailExist = await checkEmailExist(emailV);
-        if (emailExist) {
-            showCustomAlert('Ops! Já existe um usuário cadastrado com este e-mail. Por favor, use outro.');
-
-            emailUserInput.classList.add('error');
-
-            setTimeout(() => {
-                emailUserInput.classList.remove('error');
-            }, 2200);
-            return; 
-        }
-
-        const newUser = {
-            name: nameV,
-            email: emailV,
-            password: passwordV,
-            capital: capitalV
-        }
-
         try {
-            
+            const emailExist = await checkEmailExist(emailV);
+            if (emailExist) {
+                showCustomAlert('Ops! Já existe um usuário cadastrado com este e-mail. Por favor, use outro.');
+
+                emailUserInput.classList.add('error');
+                emailUserInput.focus()
+
+                setTimeout(() => {
+                    emailUserInput.classList.remove('error');
+                }, 2200);
+                return; 
+            }
+
+            const newUser = new User(nameV, emailV, passwordV, capitalV);
+            newUser.createUser();
+
+            nameUserInput.value = '';
+            emailUserInput.value = '';
+            passwordUserInput.value = '';
+            capitalUserInput.value = '';
         } catch (error) {
-            
+            showCustomAlert('Erro ao cadastrar usuario, verifique o console!', error)
+            console.log(`Erro no cadastro: ${error.message}`);
         }
     })
+    collectSection.addEventListener('click', (e) => { // Mantido como 'click' no botão
+            e.preventDefault();
+            hideUserSection(userContentWrapper);
+    });
 })
