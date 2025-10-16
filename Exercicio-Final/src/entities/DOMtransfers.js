@@ -2,6 +2,24 @@ import { displayTransfersArea, transfersSct } from "./elements.js";
 import { Transfer } from "../controller/Transfer.js";
 import { showCustomAlert } from "../app.js";
 
+// ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
+// Esta função buscará o usuário no json-server e retornará o objeto do usuário
+// ou null se não encontrar, ou lançará um erro se a API falhar.
+async function findUserByEmail(email) {
+    try {
+        const response = await fetch(`http://localhost:3000/users?email=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar usuário por e-mail: ${response.status} - ${response.statusText}`);
+        }
+        const users = await response.json();
+        return users.length > 0 ? users[0] : null; // Retorna o primeiro usuário encontrado ou null
+    } catch (error) {
+        console.error('Erro ao buscar usuário:', error);
+        // Não exibe um alerta aqui para não interromper múltiplos checks (sender/recipient)
+        throw error; // Propaga o erro para ser tratado no contexto da chamada
+    }
+}
+
 // ========================= EVENTLISTERNS DA AREA DE TRANSFERENCIA ========================= //
 export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) => {
    ev.preventDefault();
@@ -97,7 +115,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     valueTransferInput.id = 'valueTransfer';
     valueTransferInput.name = 'value';
 
-    senderGroup.append(labelNameSender, nameSenderInput, labelValueTransfer, labelEmailSender, emailSenderInput, valueTransferInput);
+    senderGroup.append(labelNameSender, nameSenderInput, labelEmailSender, emailSenderInput, labelValueTransfer, valueTransferInput);
 
     const recipientGroup = document.createElement('div');
     recipientGroup.className = 'recipient-group';
@@ -118,12 +136,12 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     labelEmailRecipient.classList = 'email-transfer-label';
     labelEmailRecipient.textContent = 'Informe o e-mail de quem esta recebendo, esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
 
-    const emailRecientInput = document.createElement('input'); // Variável local do input
-    emailRecientInput.type = 'email';
-    emailRecientInput.id = 'emailRecipient';
-    emailRecientInput.name = 'email-recipient';
+    const emailRecipientInput = document.createElement('input'); // Variável local do input
+    emailRecipientInput.type = 'email';
+    emailRecipientInput.id = 'emailRecipient';
+    emailRecipientInput.name = 'email-recipient';
 
-    recipientGroup.append(labelNameRecipient, nameRecipientInput, labelEmailRecipient, emailRecientInput);
+    recipientGroup.append(labelNameRecipient, nameRecipientInput, labelEmailRecipient, emailRecipientInput);
 
     const buttonsTransfer = document.createElement('div');
     buttonsTransfer.className = 'btns-transfer-group';
@@ -172,8 +190,10 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     
         const date = dateTransferInput.value;
         const nameSender = nameSenderInput.value;
-        const valueTransfer = parseFloat(valueTransferInput.value);
+        const emailSender = emailSenderInput.value;
         const nameRecipient = nameRecipientInput.value;
+        const emailRecipient = emailRecipientInput.value;
+        const valueTransfer = parseFloat(valueTransferInput.value);
 
         if (!date || !nameSender || valueTransfer <= 0 || !nameRecipient) {
             showCustomAlert('Por favor, preencha todos os campos!');
@@ -224,12 +244,47 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
             }, 2200);
             return;
         }
+
+        // 5. Validação de que remetente e destinatário não são a mesma pessoa
+        if (emailSender === emailRecipient) {
+            showCustomAlert('O remetente e o destinatário não podem ser o mesmo usuário.');
+            emailSenderInput.classList.add('error');
+            emailSenderInput.focus();
+            emailRecipientInput.classList.add('error');
+            setTimeout(() => { emailSenderInput.classList.remove('error'); emailRecipientInput.classList.remove('error'); }, 2200);
+            return;
+        }
     
         const newTransfer = new Transfer(date, nameSender, valueTransfer, nameRecipient);
     
         try {
             // Chamamos o método assíncrono makeTransfer da instância
             // Usamos 'await' porque makeTransfer é um método assíncrono
+            const findEmailSender = findUserByEmail(emailSender);
+            const findEmailRecipient = findUserByEmail(emailRecipient);
+
+            if (!findEmailSender) {
+                showCustomAlert(`Remetente com e-mail "${emailSender}" não encontrado. Por favor, verifique.`);
+                emailSenderInput.classList.add('error');
+                emailSenderInput.focus();
+                setTimeout(() => {
+                    emailSenderInput.classList.remove('error');
+                }, 2200);
+            }
+
+            if (!findEmailRecipient) {
+                showCustomAlert(`Destinatario com e-mail "${emailRecipient}" não encontrado. Por favor, verifique.`);
+                emailRecipientInput.classList.add('error');
+                emailRecipientInput.focus();
+                setTimeout(() => {
+                    emailRecipientInput.classList.remove('error');
+                }, 2200)
+            }
+
+            if (findEmailSender.capital < valueTransfer) {
+                
+            }
+
             await newTransfer.makeTransfer();
 
     
