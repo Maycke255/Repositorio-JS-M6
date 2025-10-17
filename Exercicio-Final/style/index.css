@@ -258,6 +258,10 @@ header img {
     padding: 1rem;
 }
 
+.group-password {
+    position: relative;
+}
+
 .btns-user-group, 
 .btns-transfer-group, .group-date-btns {
     display: flex;
@@ -308,6 +312,20 @@ header img {
     max-width: 100%;
     color: var(--color-tertiary);
     box-shadow: var(--shadow-light);
+    box-sizing: border-box;
+}
+
+/* NOVO: Estilo para o wrapper do input e do ícone */
+.input-and-icon-wrapper {
+    position: relative; /* ESSENCIAL para o posicionamento do ícone */
+    width: 100%; /* Garante que o wrapper ocupe a largura total disponível */
+}
+
+/* ========================================================== */
+/* >>> ESTA É A ALTERAÇÃO MAIS IMPORTANTE <<< */
+/* Ajuste o padding-right ESPECIFICAMENTE para o input de senha */
+#passwordUser {
+    padding-right: 3rem; /* Aumenta o espaço para o ícone. Isso empurrará o texto para a esquerda. */
 }
 
 /* Efeito após passar por cima */
@@ -385,6 +403,33 @@ header img {
 }
 .users-section-active .capital-users {
     transition-delay: 0.4s; /* Aparece por último */
+}
+
+/* ======================== ESTILO DO OLHO DA SENHA ======================== */
+.password-toggle-icon {
+    position: absolute;
+    right: 1.5rem; /* Distância da borda direita */
+    top: 50%; /* Centraliza verticalmente no meio do contêiner */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px; /* <--- Defina a largura da sua imagem aqui */
+    height: 24px; /* <--- E a altura */
+    user-select: none;
+    z-index: 10;
+    filter: drop-shadow(0 2px 10px rgb(255, 255, 255));
+}
+
+/* SEU CSS para o ícone do "olho" */
+.password-toggle-icon {
+    position: absolute;
+    right: 0.75rem; /* <--- AJUSTADO! De 1.5rem para 0.75rem. Isso o move mais para a direita. */
+    top: 50%; /* Agora 50% da altura do .input-and-icon-wrapper (que é a altura do input) */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    user-select: none;
+    z-index: 10;
 }
 
 /* Quando a seção está recolhendo, o transition-delay se aplica de forma inversa.

@@ -125,7 +125,36 @@ export const userArea = displayUsersArea.addEventListener('click', (ev) => {
     passwordUserInput.required = true;
     passwordUserInput.name = 'password';
 
-    groupPassword.append(labelPassword, passwordUserInput);
+    const togglePassword = document.createElement('img');
+    togglePassword.classList.add('password-toggle-icon');
+    togglePassword.id = 'togglePassword';
+    togglePassword.src = '../imgs/icons8-eye-50.png'; 
+    togglePassword.alt = 'Mostrar senha'; 
+
+    //=================== BOTÃO DE MOSTRAR SENHA ===================//
+    togglePassword.addEventListener('click', function () {
+        const type = passwordUserInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordUserInput.setAttribute('type', type);
+
+        // Altera a imagem src e o texto alt com base no tipo do input
+        if (type === 'text') {
+            this.src = '../imgs/icons8-eye-closed.png'; 
+            this.alt = 'Esconder senha';
+        } else {
+            this.src = '../imgs/icons8-eye-50.png'; 
+            this.alt = 'Mostrar senha';
+        }
+    });
+
+    // ---- NOVO ----
+    const inputAndIconWrapper = document.createElement('div');
+    inputAndIconWrapper.classList.add('input-and-icon-wrapper'); // Adicione uma nova classe para estilização
+
+    // Adicione o input e o ícone ao novo wrapper
+    inputAndIconWrapper.append(passwordUserInput, togglePassword);
+
+    // Agora, adicione o label e o novo wrapper ao groupPassword
+    groupPassword.append(labelPassword, inputAndIconWrapper);
     
     const groupCapital = document.createElement('div');
     groupCapital.classList = 'group-capital';

@@ -1,11 +1,9 @@
-// ARQUIVO: DOMtransfer.js
-
 import { displayTransfersArea, transfersSct } from "./elements.js";
 import { Transfer } from "../controller/Transfer.js";
 import { showCustomAlert } from "../app.js";
 
 // Regex para validação de email
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/; // <<-- Adicionado
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
 
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
 async function findUserByEmail(email) {
@@ -162,7 +160,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
     emailRecipientInput.type = 'email';
     emailRecipientInput.id = 'emailRecipient';
     emailRecipientInput.required = true;
-    emailRecipientInput.name = 'emailRecipient'; // <<-- CORRIGIDO: Consistente com Transfer.js
+    emailRecipientInput.name = 'emailRecipient';
 
     recipientGroup.append(labelNameRecipient, nameRecipientInput, labelEmailRecipient, emailRecipientInput);
 
@@ -198,7 +196,6 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
         dateTransferInput.value = `${year}-${month}-${day}`;
     });
 
-    // <<-- CORRIGIDO: Listener no formulário (transferContentWrapper) para 'submit'
     executeTransferButton.addEventListener('click', async (ev) => {
         ev.preventDefault();
 
