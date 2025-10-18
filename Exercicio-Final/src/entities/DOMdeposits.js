@@ -1,5 +1,6 @@
 import { showCustomAlert } from "../app.js";
 import { Deposit } from "../controller/Deposit.js";
+import { emailRegex } from "./DOMtransfers.js";
 import { depositSct, displayDepositArea } from "./elements.js";
 
 // Regex para validação de email
@@ -82,7 +83,7 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
     accountNameInput.required = true;
     accountNameInput.name = 'accountName';
 
-    nameAccountGroup.append(labelAccount, accountName);
+    nameAccountGroup.append(labelAccount, accountNameInput);
 
     const emailAccountGroup = document.createElement('div');
     emailAccountGroup.className = 'email-account-group';
@@ -119,6 +120,8 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
     valueDepositInput.min = '0.01'; // Mínimo para transferência
     valueDepositInput.step = 'any'; // Permite decimais se o tipo for number
 
+    valueDepositGroup.append(labelValueDeposit, valueDepositInput);
+
     const buttonsDeposit = document.createElement('div');
     buttonsDeposit.className = 'btns-deposit-group';
     buttonsDeposit.classList.add('animated-element');
@@ -142,7 +145,83 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
         depositContentWrapper.classList.add('deposit-section-active');
     });
 
-    excuteDepositButton.addEventListener('click', (ev) => {
+    excuteDepositButton.addEventListener('click', async (ev) => {
         ev.preventDefault();
+
+        const nameValue = accountNameInput.value.trim();
+        const emailValue = emailAccountInput.value.trim();
+        const valueDeposit = parseFloat(valueDepositInput.value.trim());
+
+        let firstErrorInput = nullç
+
+        if (!nameValue) { showCustomAlert('Por favor, insira o nome da conta que recebera o deposito.'); firstErrorInput = accountNameInput; }
+        else if (!emailValue) { 
+            showCustomAlert('Por favor, informe o email da conta que recebera o deposito para fins de identificação'); 
+            firstErrorInput = emailAccountInput; 
+        }
+        else if (isNaN(valueDeposit)) { 
+            showCustomAlert('Por favor, insira números validos para o deposito, e não poderá ter "," ou ".".'); 
+            firstErrorInput = valueDepositInput; 
+        }
+
+        if (firstErrorInput) {
+            firstErrorInput.classList.add('error');
+            firstErrorInput.focus();
+            setTimeout(() => firstErrorInput.classList.remove('error'), 2200);
+            return;
+        }
+
+        if (!emailRegex.test(emailValue)) { showCustomAlert('O e-mail do remetente não tem um formato válido.'); firstErrorInput = emailAccountInput; }
+        else if (!emailRegex.test(emailValue)) { showCustomAlert('O e-mail do destinatário não tem um formato válido.'); firstErrorInput = emailAccountInput; }
+
+        if (firstErrorInput) {
+            firstErrorInput.classList.add('error');
+            firstErrorInput.focus();
+            setTimeout(() => firstErrorInput.classList.remove('error'), 2200);
+            return;
+        }
+
+        try {
+            //Teste para ver se o email existe no banco de dados
+            const accountExist = await findUserByEmail(emailValue);
+
+            if (!accountExist) {
+                showCustomAlert(`Conta com email "${accountExist}" não encontrado. Por favor, verifique.`);
+                emailAccountInput.classList.add('error');
+                emailAccountInput.focus();
+                setTimeout(() => emailAccountInput.classList.remove('error'), 2200);
+                return;
+            }
+
+            const addNewDepositAccount = accountExist.capital + valueDeposit;
+
+            await fetch(`http://localhost:3000/users/${accountExist.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ capital: addNewDepositAccount })
+            });
+
+            const newDeposit = new Deposit(
+                nameValue,
+                emailValue,
+                valueDeposit
+            );
+
+            await newDeposit.makeDeposit();
+            showCustomAlert('Deposito realizada com sucesso! 🎉'); // Feedback de sucesso final
+            
+            accountNameInput.value = '';
+            emailAccountInput.value = '';
+            valueDepositInput.value = '';
+        } catch (error) {
+            showCustomAlert('Ocorreu um erro durante a verificação ou processamento do deposito. Verifique o console.');
+            console.error(`Erro detalhado durante a verificação/processamento:`, error); // <<-- CORRIGIDO: Acessando 'error' corretamente
+        }
+
+        // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO --- <<-- CORRIGIDO: FORA do listener de submit
+        collectSectionButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideTransferSection(depositContentWrapper);
+        });
     })
 });

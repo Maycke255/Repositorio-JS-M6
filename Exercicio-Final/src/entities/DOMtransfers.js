@@ -3,7 +3,7 @@ import { Transfer } from "../controller/Transfer.js";
 import { showCustomAlert } from "../app.js";
 
 // Regex para validação de email
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
 
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
 async function findUserByEmail(email) {
@@ -212,8 +212,11 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
         // 2. Validação de campos vazios (já usando 'required' nos inputs, mas é bom ter uma camada JS)
         if (!dateString) { showCustomAlert('Por favor, selecione a data da transferência.'); firstErrorInput = dateTransferInput; }
         else if (!nameSender) { showCustomAlert('Por favor, informe o nome do remetente.'); firstErrorInput = nameSenderInput; }
-        else if (!emailSender) { showCustomAlert('Por favor, informe o e-mail do remetente.'); firstErrorInput = emailSenderInput; } // <<-- CORRIGIDO: input para emailSenderInput
-        else if (isNaN(valueTransfer) || valueTransfer <= 0) { showCustomAlert('Por favor, informe um valor de transferência válido e positivo.'); firstErrorInput = valueTransferInput; }
+        else if (!emailSender) { showCustomAlert('Por favor, informe o e-mail do remetente.'); firstErrorInput = emailSenderInput; }
+        else if (isNaN(valueTransfer) || valueTransfer <= 0) { 
+            showCustomAlert('Por favor, informe um valor de transferência válido e positivo.'); 
+            firstErrorInput = valueTransferInput; 
+        }
         else if (!nameRecipient) { showCustomAlert('Por favor, informe o nome do destinatário.'); firstErrorInput = nameRecipientInput; }
         else if (!emailRecipient) { showCustomAlert('Por favor, informe o e-mail do destinatário.'); firstErrorInput = emailRecipientInput; }
 
@@ -309,14 +312,14 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
             await fetch(`http://localhost:3000/users/${senderUser.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ capital: newSenderCapital }) // <<-- CORRIGIDO: 'capital' ao invés de 'userCapital'
+                body: JSON.stringify({ capital: newSenderCapital })
             });
 
             // Atualiza o capital do destinatário
             await fetch(`http://localhost:3000/users/${recipientUser.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ capital: newRecipientCapital }) // <<-- CORRIGIDO: 'capital' ao invés de 'userCapital'
+                body: JSON.stringify({ capital: newRecipientCapital })
             });
 
             // Cria a transferência (somente após as atualizações de saldo)
