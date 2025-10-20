@@ -127,3 +127,5 @@ export { showCustomAlert }
 
 import { trasnferArea } from "./entities/DOMtransfers.js";
 import { userArea } from "./entities/DOMusers.js";
+import { depositArea } from "./entities/DOMdeposits.js";
+import { loansArea } from "./entities/DOMloans.js";

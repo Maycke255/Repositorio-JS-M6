@@ -41,7 +41,7 @@ function hideTransferSection(wrapperElement) {
     }, { once: true });
 }
 
-// ========================= EVENT LISTENERS DA ÁREA DE TRANSFERÊNCIA ========================= //
+// ========================= EVENT LISTENERS DA ÁREA DE LOANS ========================= //
 export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) => {
    ev.preventDefault();
 

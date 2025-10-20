@@ -103,6 +103,10 @@ header img {
     text-align: center;
 }
 
+#trasactions, #userssSct, #transfersSct, #depositSct, #loansSct {
+    margin: 1rem;
+}
+
 /*========= Estilo proprio da caixa de seleção =========*/
 #boxSelection {
     display: none;
@@ -200,10 +204,7 @@ header img {
     color: var(--color-primary); /* Texto escuro para contraste no hover, se o fundo for claro */
 }
 
-
-#trasactions, #userssSct, #transfersSct, #depositSct, #loansSct {
-    margin: 1rem;
-}
+/* ======================================================== */
 
 /*========= Estilos dos botões ========= */
 #displayTransactions, #displayUsersArea, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
@@ -247,12 +248,13 @@ header img {
 
 /*========= Estilos das sections ========= */
 
-.subtitle, .subtitle-transfer, .subtitle-users {
+.subtitle, .subtitle-transfer, .subtitle-users, .subtitle-deposit {
     padding: 1rem;
 }
 
 .group-name, .group-email, .group-password, .group-capital, 
-.date-group, .sender-group, .recipient-group {
+.date-group, .sender-group, .recipient-group,
+.name-account-group, .email-account-group, .value-account-group, .btns-deposit-group {
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -263,13 +265,15 @@ header img {
 }
 
 .btns-user-group, 
-.btns-transfer-group, .group-date-btns {
+.btns-transfer-group, .group-date-btns,
+.btns-deposit-group {
     display: flex;
     flex-direction: column;
 }
 
 #createUser, 
-#dateTransfer, #btnTransferToday, #executeTransfer, 
+#dateTransfer, #btnTransferToday, #executeTransfer,
+#executeDeposit, 
 #collectSection {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
@@ -297,7 +301,8 @@ header img {
 }
 
 #nameUser, #emailUser, #passwordUser, #capitalUser, 
-#nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient {
+#nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient,
+#nameAccount, #emailAccount, #valueDeposit {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
@@ -330,14 +335,16 @@ header img {
 
 /* Efeito após passar por cima */
 #createUser:hover,
-#dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, #collectSection:hover {
+#dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, 
+#executeDeposit:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
 }
 
 /* Muda de escala quando clicavel */
 #createUser:active, 
-#dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, #collectSection:active {
+#dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, 
+#executeDeposit:active, #collectSection:active {
     transform: scale(0.99);
 }
 
@@ -354,6 +361,8 @@ header img {
     /* Ajuste os tempos conforme quão rápido/lento você quer a animação */
 }
 
+
+/* === TRANSFERENCIA === */
 /* Estado ativo: quando a classe é adicionada ao #transferContentWrapper === TRANSFERENCIA === */
 /* Todos os elementos .animated-element dentro de um .transfer-section-active se tornam visíveis e se movem para a posição */
 .transfer-section-active .animated-element {
@@ -380,6 +389,7 @@ header img {
     transition-delay: 0.4s; /* Aparece por último */
 }
 
+
 /* === USUARIOS === */
 .users-section-active .animated-element {
     opacity: 1;
@@ -402,8 +412,41 @@ header img {
     transition-delay: 0.3s;
 }
 .users-section-active .capital-users {
+    transition-delay: 0.4s; 
+}
+
+.users-section-active .btns-user-group {
+    transition-delay: 0.5s; /* Aparece por último */
+}
+
+
+
+/* === DEPOSITO === */
+.deposit-section-active .animated-element {
+    opacity: 1;
+    max-height: 500px; /* Um valor grande o suficiente para acomodar o conteúdo sem cortar */
+    transform: translateY(0);
+}
+
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.deposit-section-active .subtitle-deposit {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.deposit-section-active .name-account-group {
+    transition-delay: 0.1s;
+}
+.deposit-section-active .email-account-group {
+    transition-delay: 0.2s;
+}
+.deposit-section-active .value-account-group {
+    transition-delay: 0.3s;
+}
+.deposit-section-active .btns-deposit-group {
     transition-delay: 0.4s; /* Aparece por último */
 }
+
+
 
 /* ======================== ESTILO DO OLHO DA SENHA ======================== */
 .password-toggle-icon {

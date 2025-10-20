@@ -30,6 +30,7 @@ export class Deposit {
             console.log('Deposito realizado com sucesso:', result);
         } catch (error) {
             console.error('Falha ao realizar o deposito:', error);
+            throw error;
         }
     }
 }

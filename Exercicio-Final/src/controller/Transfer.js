@@ -1,5 +1,3 @@
-import { showCustomAlert } from '../app.js';
-
 export class Transfer {
     constructor(date, senderName, emailSender, value, recipientName, emailRecipient){
         this.date = date;

@@ -12,7 +12,7 @@
       "name": "Kaio",
       "email": "aaa@gmail.com",
       "password": "123456",
-      "capital": 1000
+      "capital": 1500
     }
   ],
   "transfers": [
@@ -26,6 +26,13 @@
       "emailRecipient": "reydsonk@gmail.com"
     }
   ],
-  "deposits": [],
+  "deposits": [
+    {
+      "id": "ad15",
+      "name": "Kaio",
+      "email": "aaa@gmail.com",
+      "value": 500
+    }
+  ],
   "loans": []
 }
