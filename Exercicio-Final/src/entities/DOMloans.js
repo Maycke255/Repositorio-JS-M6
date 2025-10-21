@@ -1,6 +1,7 @@
 import { displayLoansArea, loansSct } from "../entities/elements.js";
 import { showCustomAlert } from "../app.js";
 import { emailRegex } from "./DOMtransfers.js";
+import { Loan } from "../controller/Loan.js";
 
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
 async function findUserByEmail(email) {
@@ -85,7 +86,7 @@ function hideLoansSection(wrapperElement) {
     if (!wrapperElement || !wrapperElement.classList.contains('loans-section-active')) {
         return;
     }
-    wrapperElement.classList.remove('transfer-section-active');
+    wrapperElement.classList.remove('loans-section-active');
     const lastAnimatedElement = wrapperElement.querySelector('.btns-loans-group');
 
     if (!lastAnimatedElement) {
@@ -129,7 +130,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     subtitle.textContent = 'Insira as informações para realização do do emprestimo.';
 
     const dateGroup = document.createElement('div');
-    dateGroup.className = 'date-group';
+    dateGroup.className = 'date-group'; // Grupo de data pai
     dateGroup.classList.add('animated-element');
 
     const labelDate = document.createElement('label');
@@ -139,7 +140,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     'clicando no botão "Emprestimo Hoje".';
 
     const groupDateBtns = document.createElement('div');
-    groupDateBtns.classList = 'group-date-btns';
+    groupDateBtns.classList = 'group-date-btns'; // Grupo de botões da data
 
     const dateLoanInput = document.createElement('input');
     dateLoanInput.type = 'date';
@@ -189,7 +190,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     loanDefinition.classList.add('animated-element');
     
     const loanGroupValue = document.createElement('div');
-    loanGroupValue.className = 'loan-definition-group';
+    loanGroupValue.className = 'loan-value-group';
 
     const labelValueLoan = document.createElement('label');
     labelValueLoan.htmlFor = 'valueLoan';
@@ -207,7 +208,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     loanGroupValue.append(labelValueLoan, valueLoanInput);
 
     const loanInstallmentsGroup = document.createElement('div');
-    loanInstallmentsGroup.className = 'loan-installments-group';
+    loanInstallmentsGroup.className = 'loan-installments-group'; // Usando este para envolver label e custom select
 
     // --- CUSTOM SELECT PARA PARCELAS ---
     const customSelectWrapperInstallments = document.createElement('div');
@@ -252,7 +253,8 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
         selectItemsInstallments.append(optionCustom);
     });
 
-    customSelectWrapperInstallments.append(labelCustomSelectWrapperInstallments, nativeSelectInstallments, selectSelectedInstallments, selectItemsInstallments);
+    customSelectWrapperInstallments.append(nativeSelectInstallments, selectSelectedInstallments, selectItemsInstallments);
+    loanInstallmentsGroup.append(labelCustomSelectWrapperInstallments, customSelectWrapperInstallments); // <<-- Anexa a label e o wrapper ao group
 
     // --- INPUT PARA TAXA ---
     const loanGroupFee = document.createElement('div');
@@ -274,7 +276,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     loanGroupFee.append(labelFeeLoan, feeLoanInput);
 
-    loanDefinition.append(loanGroupValue, customSelectWrapperInstallments, loanGroupFee);
+    loanDefinition.append(loanGroupValue, loanInstallmentsGroup, loanGroupFee); // <<-- Correto: Anexa ao loanDefinition
 
     const buttonsLoans = document.createElement('div');
     buttonsLoans.className = 'btns-loans-group';
@@ -291,11 +293,21 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     collectSectionButton.type = 'button';
 
     buttonsLoans.append(setLoanButton, collectSectionButton);
-    loansContentWrapper.append(dateGroup, loanUserGroup, loanDefinition, buttonsLoans);
+    // <<-- CORREÇÃO PRINCIPAL AQUI: Um único append para todos os elementos na ordem correta
+    loansContentWrapper.append(
+        subtitle,
+        dateGroup,
+        loanUserGroup,
+        loanDefinition,
+        buttonsLoans
+    );
 
     requestAnimationFrame(() => {
-        loansContentWrapper.classList.add('loan-section-active');
+        loansContentWrapper.classList.add('loans-section-active');
     });
+
+    // Inicializa o custom select após os elementos serem criados e anexados
+    setupCustomSelect(nativeSelectInstallments, customSelectWrapperInstallments);
 
     // --- AGORA, EVENT LISTENERS AQUI, APÓS A CRIAÇÃO DOS ELEMENTOS ---
     todayDateButton.addEventListener('click', (ev) => {
@@ -317,6 +329,8 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
         const installments = parseInt(nativeSelectInstallments.value); // Pega o valor numérico das parcelas
         const feePercentage = parseFloat(feeLoanInput.value); // Taxa em porcentagem
 
+        let firstErrorInput = null; // <<-- CORRIGIDO: Declaração da variável
+
         if (!dateValue) { showCustomAlert('Por favor, selecione a data do empréstimo.'); firstErrorInput = dateLoanInput; }
         else if (!nameValue) { showCustomAlert('Por favor, preencha o nome do usuário que fará o empréstimo.'); firstErrorInput = nameLoanInput; }
         else if (!emailValue) { showCustomAlert('Por favor, preencha o e-mail do usuário.'); firstErrorInput = emailLoanInput; }
@@ -334,7 +348,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
             return;
         }
 
-        if (!emailRegex.test(userEmail)) {
+        if (!emailRegex.test(emailValue)) {
             showCustomAlert('O e-mail inserido não tem um formato válido.');
             emailLoanInput.classList.add('error');
             emailLoanInput.focus();
@@ -342,7 +356,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
             return;
         }
 
-        const selectedDate = new Date(dateString + 'T00:00:00');
+        const selectedDate = new Date(dateValue + 'T00:00:00');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -366,14 +380,57 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
             const loanUser = await findUserByEmail(emailValue);
 
             if (!loanUser) {
-                showCustomAlert(`Usuário com e-mail "${userEmail}" não encontrado. Por favor, verifique.`);
+                showCustomAlert(`Usuário com e-mail "${emailValue}" não encontrado. Por favor, verifique.`);
                 emailLoanInput.classList.add('error');
                 emailLoanInput.focus();
                 setTimeout(() => emailLoanInput.classList.remove('error'), 2200);
                 return;
             }
-        } catch (error) {
 
+            // Calcula os valores do empréstimo
+            const totalAmountToPay = loanValue * (1 + (feePercentage / 100)); // Valor total a ser pago (principal + juros)
+            const installmentAmount = totalAmountToPay / installments; // Valor de cada parcela
+
+            const newLoanUserCapital = loanUser.capital + loanValue;
+
+            await fetch(`http://localhost:3000/users/${loanUser.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ capital: newLoanUserCapital })
+            });
+
+            //Salvando o emprestimo no banco
+            const newLoan = new Loan(
+                dateValue,
+                nameValue,
+                emailValue,
+                loanValue,
+                installments,
+                feePercentage,
+                totalAmountToPay,
+                installmentAmount
+            );
+
+            await newLoan.makeLoan();
+            showCustomAlert('Empréstimo realizado com sucesso! 🎉');
+
+            // Limpa os campos após o sucesso
+            dateLoanInput.value = '';
+            nameLoanInput.value = '';
+            emailLoanInput.value = '';
+            valueLoanInput.value = '';
+            nativeSelectInstallments.value = ''; // Limpa o select nativo
+            selectSelectedInstallments.innerHTML = placeholderOption.textContent; // Reseta o texto do custom select
+            selectItemsInstallments.querySelectorAll('.same-as-selected').forEach(el => el.classList.remove('same-as-selected'));
+            feeLoanInput.value = '5'; // Reseta para o valor padrão
+        } catch (error) {
+            showCustomAlert('Ocorreu um erro durante o processamento do empréstimo. Verifique o console para mais detalhes.');
+            console.error(`Erro detalhado durante o processamento do empréstimo:`, error);
         }
-    })
+    });
+    // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO --- <<-- CORRIGIDO: FORA do listener de submit
+    collectSectionButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideLoansSection(loansContentWrapper);
+    });
 });

@@ -113,10 +113,12 @@ header img {
 }
 .custom-select-wrapper {
     position: relative;
-    display: inline-block; /* Ou block, dependendo do layout */
+    display: block; /* Ou block, dependendo do layout */
     margin: 2rem; /* Mantém o margin original */
-    width: 250px; /* Ajuste conforme necessário para o tamanho ideal */
-    max-width: calc(100% - 4rem); /* Para responsividade e margem */
+    margin-top: 0;
+    width: 100%; /* Ajuste conforme necessário para o tamanho ideal */
+    max-width: 250px;
+    overflow: visible; /* IMPORTE: Garante que o dropdown não seja cortado por ele mesmo */
 }
 
 /* Estilo para a caixa de seleção visível (o que você clica) */
@@ -142,6 +144,7 @@ header img {
     white-space: nowrap; /* Garante que o texto não quebre nesta linha */
     overflow: hidden;
     text-overflow: ellipsis; /* Adiciona '...' se o texto for muito longo */
+    transition: background 0.3s ease, transform 0.3s ease; /* Adicionando transição */
 }
 
 /* Estilo da seta */
@@ -171,13 +174,15 @@ header img {
     background-color: var(--color-primary); /* Fundo escuro das opções */
     border: 2.5px solid var(--color-tertiary); /* Borda roxa das opções */
     border-radius: .75rem; /* Arredonda as bordas da caixa do dropdown */
-    top: 100%; /* Posiciona abaixo do select principal */
+    top: calc(100% + 0.5rem); /* Posiciona abaixo do select principal com espaçamento */
     left: 0;
     right: 0;
     z-index: 99;
     overflow: hidden; /* Garante que as bordas arredondadas funcionem */
     box-shadow: var(--shadow-light); /* Sombra para o dropdown */
     margin-top: 0.5rem; /* Pequeno espaçamento entre o select e o dropdown */
+    max-height: 200px; /* Limita a altura e adiciona scroll se necessário */
+    overflow-y: auto; /* Adiciona scroll vertical se as opções excederem max-height */
 }
 
 /* Esconde o dropdown por padrão */
@@ -248,16 +253,22 @@ header img {
 
 /*========= Estilos das sections ========= */
 
-.subtitle, .subtitle-transfer, .subtitle-users, .subtitle-deposit {
+.subtitle, .subtitle-transfer, .subtitle-users, .subtitle-deposit, .subtitle-loan {
     padding: 1rem;
 }
 
 .group-name, .group-email, .group-password, .group-capital, 
 .date-group, .sender-group, .recipient-group,
-.name-account-group, .email-account-group, .value-account-group, .btns-deposit-group {
+.name-account-group, .email-account-group, .value-account-group, .btns-deposit-group,
+.date-group, .loan-user-group, .loan-value-group, .loan-installments-group, .custom-select-wrapper, .loan-fee-group {
     display: flex;
     flex-direction: column;
     padding: 1rem;
+}
+
+.loan-definition-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .group-password {
@@ -266,14 +277,16 @@ header img {
 
 .btns-user-group, 
 .btns-transfer-group, .group-date-btns,
-.btns-deposit-group {
+.btns-deposit-group,
+.btns-loans-group {
     display: flex;
     flex-direction: column;
 }
 
 #createUser, 
 #dateTransfer, #btnTransferToday, #executeTransfer,
-#executeDeposit, 
+#executeDeposit,
+#setLoan, #dateLoan, #btnLoanToday, 
 #collectSection {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
@@ -302,7 +315,8 @@ header img {
 
 #nameUser, #emailUser, #passwordUser, #capitalUser, 
 #nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient,
-#nameAccount, #emailAccount, #valueDeposit {
+#nameAccount, #emailAccount, #valueDeposit,
+#nameLoan, #emailLoan, #valueLoan, #feeLoan {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
@@ -326,6 +340,28 @@ header img {
     width: 100%; /* Garante que o wrapper ocupe a largura total disponível */
 }
 
+/* NOVO: Sobrescreve overflow: hidden para containers que têm dropdowns */
+/* O loan-definition-group é o flex container principal para os campos de valor/parcela/taxa */
+/* loan-installments-group é o container do custom select */
+.loans-section-active .loan-definition-group,
+.loans-section-active .loan-installments-group {
+    overflow: visible; /* Garante que o dropdown possa "escapar" */
+}
+
+/* NOVO: A label do custom select deve ser um bloco separado para alinhamento */
+.installments-loan-label {
+    display: block; /* Garante que a label ocupe sua própria linha antes do custom select */
+    margin-bottom: 0.5rem; /* Espaço entre a label e o select */
+    /* Mantenha os estilos de fonte, cor, etc. já definidos para labels */
+    font-family: var(--font-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-tertiary);
+    text-align: left;
+    line-height: 1.4;
+    white-space: normal;
+}
+
 /* ========================================================== */
 /* >>> ESTA É A ALTERAÇÃO MAIS IMPORTANTE <<< */
 /* Ajuste o padding-right ESPECIFICAMENTE para o input de senha */
@@ -336,7 +372,8 @@ header img {
 /* Efeito após passar por cima */
 #createUser:hover,
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, 
-#executeDeposit:hover, #collectSection:hover {
+#executeDeposit:hover,
+#dateLoan:hover, #btnLoanToday:hover, #setLoan:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
 }
@@ -344,7 +381,8 @@ header img {
 /* Muda de escala quando clicavel */
 #createUser:active, 
 #dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, 
-#executeDeposit:active, #collectSection:active {
+#executeDeposit:active,
+#dateLoan:active, #btnLoanToday:active, #setLoan:active, #collectSection:active {
     transform: scale(0.99);
 }
 
@@ -443,6 +481,33 @@ header img {
     transition-delay: 0.3s;
 }
 .deposit-section-active .btns-deposit-group {
+    transition-delay: 0.4s; /* Aparece por último */
+}
+
+
+
+/* === EMPRESTIMO === */
+.loans-section-active .animated-element {
+    opacity: 1;
+    max-height: 500px; /* Um valor grande o suficiente para acomodar o conteúdo sem cortar */
+    transform: translateY(0);
+}
+
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.loans-section-active .subtitle-loan {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.loans-section-active .date-group {
+    transition-delay: 0.1s;
+}
+.loans-section-active .loan-user-group {
+    transition-delay: 0.2s;
+}
+.loans-section-active .loan-definition-group {
+    transition-delay: 0.3s;
+}
+.loans-section-active .btns-loans-group {
     transition-delay: 0.4s; /* Aparece por último */
 }
 

@@ -5,7 +5,7 @@
       "name": "Maycke",
       "email": "reydsonk@gmail.com",
       "password": "123456",
-      "capital": 1200
+      "capital": 16200
     },
     {
       "id": "aa76",
@@ -34,5 +34,17 @@
       "value": 500
     }
   ],
-  "loans": []
+  "loans": [
+    {
+      "id": "daee",
+      "date": "2025-10-21",
+      "name": "Maycke Alexandre",
+      "email": "reydsonk@gmail.com",
+      "totalValue": 15000,
+      "installments": 24,
+      "rate": 6,
+      "totalAmountToPay": 15900,
+      "installmentAmount": 662.5
+    }
+  ]
 }
