@@ -17,4 +17,5 @@ const depositSct = document.getElementById('depositSct');
 const displayLoansArea = document.getElementById('displayLoansArea');
 const loansSct = document.getElementById('loansSct');
 
+export { boxSelection, displayTransactions, trasactions }
 export { bankValue, displayUsersArea, userssSct, displayTransfersArea, transfersSct, displayDepositArea, depositSct, displayLoansArea, loansSct }

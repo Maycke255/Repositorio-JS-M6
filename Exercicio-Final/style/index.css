@@ -7,6 +7,7 @@
     --color-error:#e92b34;
     --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
     --color-quintennial: #141d2e;
+    --color-edit-btn: linear-gradient(135deg,#15e90e 0%, #22eebb 50%, #8ba5fa 100%);
     --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
     --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
     --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
@@ -287,7 +288,7 @@ header img {
 #dateTransfer, #btnTransferToday, #executeTransfer,
 #executeDeposit,
 #setLoan, #dateLoan, #btnLoanToday, 
-#collectSection {
+#collectSection, #collectSectionTransactions {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
     background: var(--color-quaternary);
@@ -373,7 +374,8 @@ header img {
 #createUser:hover,
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, 
 #executeDeposit:hover,
-#dateLoan:hover, #btnLoanToday:hover, #setLoan:hover, #collectSection:hover {
+#dateLoan:hover, #btnLoanToday:hover, #setLoan:hover, 
+#collectSectionTransactions:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
 }
@@ -382,7 +384,8 @@ header img {
 #createUser:active, 
 #dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, 
 #executeDeposit:active,
-#dateLoan:active, #btnLoanToday:active, #setLoan:active, #collectSection:active {
+#dateLoan:active, #btnLoanToday:active, #setLoan:active, 
+#collectSectionTransactions:active, #collectSection:active {
     transform: scale(0.99);
 }
 
@@ -513,6 +516,33 @@ header img {
 
 
 
+/* === DSPLAY DE USUARIOS === */
+.transactions-section-active .animated-element {
+    opacity: 1;
+    max-height: 500px; /* Um valor grande o suficiente para acomodar o conteúdo sem cortar */
+    transform: translateY(0);
+}
+
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.transactions-section-active .user-card {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.transactions-section-active .users-grid-container {
+    transition-delay: 0.1s;
+}
+.transactions-section-active .no-users-message{
+    transition-delay: 0.1s;
+}
+.transactions-section-active .error-message {
+    transition-delay: 0.1s;
+}
+.transactions-section-active #collectSection {
+    transition-delay: 0.3s; /* Aparece por último */
+}
+
+
+
 /* ======================== ESTILO DO OLHO DA SENHA ======================== */
 .password-toggle-icon {
     position: absolute;
@@ -539,6 +569,122 @@ header img {
     user-select: none;
     z-index: 10;
 }
+
+
+/* ===== ESTILO PARA OS GRIDS ===== */
+.users-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Colunas responsivas */
+    gap: 1.5rem; /* Espaçamento entre os cartões */
+    width: 100%;
+    max-width: 1200px; /* Largura máxima para o grid */
+    margin: 2rem auto; /* Centraliza o grid */
+    padding: 1rem;
+}
+
+.user-card {
+    background-color: var(--color-quintennial); /* Fundo dos cartões */
+    border: 2.5px solid var(--color-tertiary);
+    border-radius: .75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Espaça conteúdo e botões */
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
+    box-shadow: var(--shadow-light-strong);
+}
+
+.user-card-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-tertiary); /* Use uma cor de contraste para o nome */
+    margin-bottom: 0.8rem;
+    text-shadow: var(--shadow-dark); /* Adiciona uma leve sombra para destacar */
+}
+
+.user-card-detail {
+    font-size: 0.95rem;
+    color: var(--color-tertiary);
+    margin-bottom: 0.4rem;
+    word-break: break-all; /* Quebra palavras longas como e-mails */
+}
+
+.user-actions {
+    display: flex;
+    gap: 1rem; /* Espaçamento entre os botões */
+    margin-top: 1.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.action-button {
+    border: 2px solid var(--color-tertiary);
+    background: var(--color-edit-btn);
+    border-radius: .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    font-family: var(--font-secondary);
+    letter-spacing: 1px;
+    padding: 0.6rem 1.2rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+    transition: background 0.3s ease, transform 0.3s ease;
+    flex-grow: 1; /* Faz os botões crescerem para preencher o espaço */
+    max-width: 120px; /* Limite de largura para botões em telas maiores */
+}
+
+.action-button:hover {
+    background: linear-gradient(135deg,#0fbe27 0%, #0e5dc4 100%); /* Gradiente de hover */
+    transform: scale(1.05);
+}
+
+.action-button:active {
+    transform: scale(0.98);
+}
+
+.delete-button {
+    background: var(--color-error); /* Cor diferente para o botão de deletar */
+    border-color: var(--color-error);
+    color: var(--color-tertiary);
+}
+.delete-button:hover {
+    background: darken(var(--color-error), 10%); /* Escurece no hover */
+}
+
+.no-users-message, .error-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--color-tertiary);
+    width: 100%;
+    margin-top: 2rem;
+}
+
+#collectSectionUsers:hover {
+    background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
+    transform: scale(1.02);
+}
+
+#collectSectionUsers:active {
+    transform: scale(0.99);
+}
+
+/* Se você tem um container para todos os botões de recolher, pode ajustar aqui */
+.btns-transactions-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 2rem; /* Espaçamento acima dos botões */
+}
+
 
 /* Quando a seção está recolhendo, o transition-delay se aplica de forma inversa.
    O último a aparecer (com maior delay) será o primeiro a começar a recolher,

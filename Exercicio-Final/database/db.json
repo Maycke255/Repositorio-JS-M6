@@ -6,13 +6,6 @@
       "email": "reydsonk@gmail.com",
       "password": "123456",
       "capital": 16200
-    },
-    {
-      "id": "aa76",
-      "name": "Kaio",
-      "email": "aaa@gmail.com",
-      "password": "123456",
-      "capital": 1500
     }
   ],
   "transfers": [
