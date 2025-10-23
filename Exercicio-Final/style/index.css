@@ -542,37 +542,62 @@ header img {
 }
 
 
+/* === DSPLAY DE TRANSFERENCIAS === */
 
-/* ======================== ESTILO DO OLHO DA SENHA ======================== */
-.password-toggle-icon {
-    position: absolute;
-    right: 1.5rem; /* Distância da borda direita */
-    top: 50%; /* Centraliza verticalmente no meio do contêiner */
-    transform: translateY(-50%); /* Ajuste fino para o centro exato */
-    cursor: pointer;
-    width: 24px; /* <--- Defina a largura da sua imagem aqui */
-    height: 24px; /* <--- E a altura */
-    user-select: none;
-    z-index: 10;
-    filter: drop-shadow(0 2px 10px rgb(255, 255, 255));
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.transactions-section-active .transfers-card {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.transactions-section-active .trasnfer-grid-container {
+    transition-delay: 0.1s;
+}
+.transactions-section-active .no-transfers-message{
+    transition-delay: 0.1s;
+}
+.transactions-section-active .error-message {
+    transition-delay: 0.1s;
 }
 
-/* SEU CSS para o ícone do "olho" */
-.password-toggle-icon {
-    position: absolute;
-    right: 0.75rem; /* <--- AJUSTADO! De 1.5rem para 0.75rem. Isso o move mais para a direita. */
-    top: 50%; /* Agora 50% da altura do .input-and-icon-wrapper (que é a altura do input) */
-    transform: translateY(-50%); /* Ajuste fino para o centro exato */
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    user-select: none;
-    z-index: 10;
+
+/* === DSPLAY DE DEPOSITOS === */
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.transactions-section-active .deposits-card {
+    transition-delay: 0s; /* Aparece primeiro */
 }
+.transactions-section-active .deposits-grid-container {
+    transition-delay: 0.1s;
+}
+.transactions-section-active .no-deposits-message{
+    transition-delay: 0.1s;
+}
+.transactions-section-active .error-message {
+    transition-delay: 0.1s;
+}
+
+
+/* === DSPLAY DE EMPRESTIMOS === */
+/* Efeito Cascata: Atrasos para cada tipo de elemento === USUARIOS === */
+/* Ajuste esses seletores e os delays conforme a ordem que você quer que apareçam */
+.transactions-section-active .loans-card {
+    transition-delay: 0s; /* Aparece primeiro */
+}
+.transactions-section-active .loans-grid-container {
+    transition-delay: 0.1s;
+}
+.transactions-section-active .no-loans-message{
+    transition-delay: 0.1s;
+}
+.transactions-section-active .error-message {
+    transition-delay: 0.1s;
+}
+
+
 
 
 /* ===== ESTILO PARA OS GRIDS ===== */
-.users-grid-container {
+.users-grid-container, .trasnfer-grid-container, .deposits-grid-container, .loans-grid-container  {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Colunas responsivas */
     gap: 1.5rem; /* Espaçamento entre os cartões */
@@ -582,7 +607,7 @@ header img {
     padding: 1rem;
 }
 
-.user-card {
+.user-card, .transfers-card, .deposits-card, .loans-card {
     background-color: var(--color-quintennial); /* Fundo dos cartões */
     border: 2.5px solid var(--color-tertiary);
     border-radius: .75rem;
@@ -596,12 +621,13 @@ header img {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.user-card:hover {
+.user-card:hover, .transfers-card:hover, .deposits-card:hover, .loans-card:hover {
     transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
     box-shadow: var(--shadow-light-strong);
 }
 
-.user-card-name {
+.user-card-name, .transfers-card-date, .transfers-card-value, .deposits-card-value, .loans-card-date, .loans-card-total-value, 
+.loans-card-total-value {
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--color-tertiary); /* Use uma cor de contraste para o nome */
@@ -609,14 +635,22 @@ header img {
     text-shadow: var(--shadow-dark); /* Adiciona uma leve sombra para destacar */
 }
 
-.user-card-detail {
+.transfers-card-name, .deposits-card-name, .loans-card-name, .loans-card-rate {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-tertiary); /* Use uma cor de contraste para o nome */
+    margin-bottom: 0.4rem;
+    text-shadow: var(--shadow-dark); /* Adiciona uma leve sombra para destacar */
+}
+
+.user-card-detail, .transfers-card-detail, .deposits-card-detail, .loans-card-detail, .loans-card-installments {
     font-size: 0.95rem;
     color: var(--color-tertiary);
     margin-bottom: 0.4rem;
     word-break: break-all; /* Quebra palavras longas como e-mails */
 }
 
-.user-actions {
+.user-actions, .transfers-actions, .deposits-actions, .loans-actions {
     display: flex;
     gap: 1rem; /* Espaçamento entre os botões */
     margin-top: 1.5rem;
@@ -660,7 +694,7 @@ header img {
     background: darken(var(--color-error), 10%); /* Escurece no hover */
 }
 
-.no-users-message, .error-message {
+.no-users-message, .no-transfers-message, .no-deposits-message, .no-deposits-message, .error-message {
     text-align: center;
     font-size: 1.1rem;
     color: var(--color-tertiary);
@@ -684,6 +718,35 @@ header img {
     width: 100%;
     margin-top: 2rem; /* Espaçamento acima dos botões */
 }
+
+
+/* ======================== ESTILO DO OLHO DA SENHA ======================== */
+.password-toggle-icon {
+    position: absolute;
+    right: 1.5rem; /* Distância da borda direita */
+    top: 50%; /* Centraliza verticalmente no meio do contêiner */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px; /* <--- Defina a largura da sua imagem aqui */
+    height: 24px; /* <--- E a altura */
+    user-select: none;
+    z-index: 10;
+    filter: drop-shadow(0 2px 10px rgb(255, 255, 255));
+}
+
+/* SEU CSS para o ícone do "olho" */
+.password-toggle-icon {
+    position: absolute;
+    right: 0.75rem; /* <--- AJUSTADO! De 1.5rem para 0.75rem. Isso o move mais para a direita. */
+    top: 50%; /* Agora 50% da altura do .input-and-icon-wrapper (que é a altura do input) */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    user-select: none;
+    z-index: 10;
+}
+
 
 
 /* Quando a seção está recolhendo, o transition-delay se aplica de forma inversa.
@@ -743,7 +806,7 @@ header img {
 /* --- Estilos para a Caixa de Alerta Personalizada --- */
 
 /* Overlay (fundo escuro que cobre a página) */
-#customAlertOverlay {
+#customAlertOverlay, #customEditOverlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -757,7 +820,7 @@ header img {
 }
 
 /* Caixa de Alerta Principal */
-#customAlert {
+#customAlert, #customEditInputs {
     position: fixed;
     top: 0;
     left: 0;
@@ -776,14 +839,16 @@ header img {
 
 /* Classes para tornar o alerta visível */
 #customAlert.visible,
-#customAlertOverlay.visible {
+#customAlertOverlay.visible,
+#customEditInputs.visible,
+#customEditOverlay.visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(0); /* Retorna à posição original */
 }
 
 /* Conteúdo interno da caixa de alerta */
-.custom-alert-content {
+.custom-alert-content, #customEditContent {
     background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
     color: #f0f0f0; /* Texto claro */
     padding: 30px;
@@ -801,6 +866,11 @@ header img {
 .custom-alert-content p {
     margin-bottom: 20px;
     font-weight: 500;
+}
+
+#containerInputs {
+    display: flex;
+    flex-direction: column;
 }
 
 /* Botão "OK" dentro do alerta */

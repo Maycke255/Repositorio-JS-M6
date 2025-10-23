@@ -8,36 +8,7 @@
       "capital": 16200
     }
   ],
-  "transfers": [
-    {
-      "id": "e7f0",
-      "date": "2025-10-16",
-      "senderName": "Kaio",
-      "emailSender": "aaa@gmail.com",
-      "valueTransfer": 200,
-      "recipientName": "Maycke",
-      "emailRecipient": "reydsonk@gmail.com"
-    }
-  ],
-  "deposits": [
-    {
-      "id": "ad15",
-      "name": "Kaio",
-      "email": "aaa@gmail.com",
-      "value": 500
-    }
-  ],
-  "loans": [
-    {
-      "id": "daee",
-      "date": "2025-10-21",
-      "name": "Maycke Alexandre",
-      "email": "reydsonk@gmail.com",
-      "totalValue": 15000,
-      "installments": 24,
-      "rate": 6,
-      "totalAmountToPay": 15900,
-      "installmentAmount": 662.5
-    }
-  ]
+  "transfers": [],
+  "deposits": [],
+  "loans": []
 }

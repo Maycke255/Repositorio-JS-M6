@@ -48,7 +48,7 @@
                         <div data-value="users">Usuarios</div>
                         <div data-value="transfers">Transferências</div>
                         <div data-value="deposits">Depósitos</div>
-                        <div data-value="Loans">Empréstimos</div>
+                        <div data-value="loans">Empréstimos</div>
                     </div>
                 </div>
 
@@ -104,6 +104,18 @@
             <div class="custom-alert-content">
                 <p id="customAlertMessage"></p> <!-- Onde a mensagem será exibida -->
                 <button id="customAlertOkButton">OK</button>
+            </div>
+        </div>
+
+        <!-- Estrutura da Caixa de edição de itens do metodo PUT personalizada -->
+        <div id="customEditOverlay"></div> <!-- Fundo escuro para cobrir a página -->
+        <div id="customEditInputs">
+            <div id="customEditContent">
+                <div id="containerInputs"></div> <!-- Onde os inputs de edição aparecerão-->
+                <div id="btnsController">
+                    <button id="customAEditOkButton">Salvar informações</button>
+                    <button id="customEditCancelButton">Cancelar</button>
+                </div>
             </div>
         </div>
 
