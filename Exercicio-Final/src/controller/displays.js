@@ -166,7 +166,7 @@ function createCardUser(user) {
 
         })
 
-        // Função para ocultar o alerta personalizado
+        // Função para ocultar o edit personalizado
         customEditCancelButton.addEventListener('click', (ev) => {
             ev.preventDefault();
 
