@@ -121,7 +121,7 @@ function hideCustomAlert() {
 // Adiciona um listener de evento ao botão "OK" para fechar o alerta
 customAlertOkButton.addEventListener('click', hideCustomAlert);
 
-export { showCustomAlert }
+export { showCustomAlert, hideCustomAlert }
 
 /* ===== CHAMANDO A FUNÇÃO DE TRANSFERENCIA ===== */
 

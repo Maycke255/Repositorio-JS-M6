@@ -6,7 +6,7 @@ import { customEditOverlay, customEditInputs, containerInputs,
 import { showCustomAlert } from '../../../src/app.js';
 
 // Importa funções utilitárias do DOM
-import { createDiv, createH } from '../../utils/domUtils.js';
+import { createDiv, createH } from '../../utils/utils.js';
 
 // Esta função agora recebe o usuário a ser editado e um callback para quando salvar
 export function setupUserEditForm(userToEdit, onSaveCallback) {

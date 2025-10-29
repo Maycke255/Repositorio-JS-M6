@@ -1,7 +1,7 @@
 //Arquivo para criar funções pequenas para gerenciar a criação de elementos como div, p, button
 
 // Função para esconder e remover a seção de transações (exibição de usuários)
-function hideTransactionSection(wrapperElement) {
+export function hideTransactionSection(wrapperElement) {
 
     if (!wrapperElement || !wrapperElement.classList.contains('transactions-section-active')) {
         return;

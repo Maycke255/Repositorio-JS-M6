@@ -15,7 +15,7 @@ export async function fetchData(endpoint, options = {}) {
     }
 }
 
-export async function deleteItem(type, id) {
+export async function deleteResource(type, id) {
     try {
         const response = await fetch(`${API_BASE_URL}/${type}/${id}`, {
             method: 'DELETE'
@@ -31,7 +31,7 @@ export async function deleteItem(type, id) {
 }
 
 // Você pode adicionar funções específicas de PUT aqui mais tarde
-export async function updateItem(type, id, data) {
+export async function updateResource(type, id, data) {
     try {
         const response = await fetch(`${API_BASE_URL}/${type}/${id}`, {
             method: 'PUT',
