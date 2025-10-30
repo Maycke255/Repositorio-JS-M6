@@ -8,6 +8,7 @@
     --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
     --color-quintennial: #141d2e;
     --color-edit-btn: linear-gradient(135deg,#15e90e 0%, #22eebb 50%, #8ba5fa 100%);
+    --color-delete-btn: linear-gradient(135deg,#f81313 0%, #e0271a 50%, #fd6e0f 100%);;
     --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
     --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
     --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
@@ -317,7 +318,7 @@ header img {
 #nameUser, #emailUser, #passwordUser, #capitalUser, 
 #nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient,
 #nameAccount, #emailAccount, #valueDeposit,
-#nameLoan, #emailLoan, #valueLoan, #feeLoan {
+#nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
@@ -686,12 +687,30 @@ header img {
 }
 
 .delete-button {
-    background: var(--color-error); /* Cor diferente para o botão de deletar */
-    border-color: var(--color-error);
-    color: var(--color-tertiary);
+    border: 2px solid var(--color-tertiary);
+    background: var(--color-delete-btn);
+    border-radius: .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    font-family: var(--font-secondary);
+    letter-spacing: 1px;
+    padding: 0.6rem 1.2rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+    transition: background 0.3s ease, transform 0.3s ease;
+    flex-grow: 1; /* Faz os botões crescerem para preencher o espaço */
+    max-width: 120px; /* Limite de largura para botões em telas maiores */
 }
+
 .delete-button:hover {
-    background: darken(var(--color-error), 10%); /* Escurece no hover */
+    background: linear-gradient(135deg,#be0f0f 0%, #c4840e 100%); /* Gradiente de hover */
+    transform: scale(1.05);
+}
+
+.delete-button:active {
+    transform: scale(0.98);
 }
 
 .no-users-message, .no-transfers-message, .no-deposits-message, .no-deposits-message, .error-message {

@@ -78,8 +78,10 @@ async function handleDeleteUser(user) {
 // ============================================= FUNÇÕES DE CONTROLE ============================================= 
 
 export const display = displayTransactions.addEventListener('click', async (ev) => {
-    if (boxSelection.value === 'transfers') {
-        // =========================================================================
+    if (boxSelection.value === 'users') {
+        ev.preventDefault()
+
+    // =========================================================================
     // FUNÇÃO PRINCIPAL PARA RENDERIZAR A SEÇÃO DE USUÁRIOS
     // =========================================================================
         let transactionsContentWrapper = trasactions.querySelector('#transactionsContentWrapper');
@@ -117,6 +119,8 @@ export const display = displayTransactions.addEventListener('click', async (ev) 
                     usersGridContainer.append(userCard);
                 });
             }
+
+            
         } catch (error) {
             showCustomAlert('Erro ao carregar usuários. Verifique o console.');
             console.error('Erro ao carregar usuários:', error);

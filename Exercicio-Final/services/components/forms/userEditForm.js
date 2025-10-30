@@ -10,6 +10,7 @@ import { createDiv, createH } from '../../utils/utils.js';
 
 // Esta função agora recebe o usuário a ser editado e um callback para quando salvar
 export function setupUserEditForm(userToEdit, onSaveCallback) {
+
     containerInputs.innerHTML = ''; // Limpa qualquer conteúdo anterior do formulário
 
     // Subtítulo do formulário
@@ -55,13 +56,13 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
 
     const togglePassword = document.createElement('img');
     togglePassword.classList.add('password-toggle-icon');
-    togglePassword.src = '../imgs/icons8-eye-50.png'; 
+    togglePassword.src = '../../../imgs/icons8-eye-closed.png'; 
     togglePassword.alt = 'Mostrar senha'; 
 
     togglePassword.addEventListener('click', function () {
         const type = passwordUserInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordUserInput.setAttribute('type', type);
-        this.src = (type === 'text') ? '../imgs/icons8-eye-closed.png' : '../imgs/icons8-eye-50.png'; 
+        this.src = (type === 'text') ? '../../../imgs/icons8-eye-closed.png' : '../../../imgs/icons8-eye-50.png'; 
         this.alt = (type === 'text') ? 'Esconder senha' : 'Mostrar senha';
     });
 

@@ -20,7 +20,7 @@ export function createUserCardElement(user, onEditCallback, onDeleteCallback) {
     const userActions = createDiv('user-actions');
 
     const editUserBtn = createButton('Editar', `editUser-${user.id}`, 'action-button', 'edit-button', { userId: user.id });
-    const deleteUserBtn = createButton('Deletar', `deleteUser-${user.id}`, 'action-button', 'delete-button', { userId: user.id });
+    const deleteUserBtn = createButton('Deletar', `deleteUser-${user.id}`, 'delete-button', { userId: user.id });
 
     // Adiciona event listeners que chamam os callbacks (funções passadas de fora)
     editUserBtn.addEventListener('click', () => onEditCallback(user)); // Passa o objeto user completo
