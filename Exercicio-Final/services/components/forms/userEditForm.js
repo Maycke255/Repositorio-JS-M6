@@ -62,7 +62,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
     togglePassword.addEventListener('click', function () {
         const type = passwordUserInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordUserInput.setAttribute('type', type);
-        this.src = (type === 'text') ? '../../../../imgs/icons8-eye-closed.png' : '../../../../imgs/icons8-eye-50.png'; 
+        this.src = (type === 'text') ? '../../../../imgs/icons8-eye-50.png' : '../../../../imgs/icons8-eye-closed.png'; 
         this.alt = (type === 'text') ? 'Esconder senha' : 'Mostrar senha';
     });
 
@@ -98,6 +98,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
         closeEditForm(); // Fecha o formulário após salvar
     };
 
+    //Cancelar
     const handleCancel = (ev) => {
         ev.preventDefault();
         closeEditForm(); // Fecha o formulário ao cancelar

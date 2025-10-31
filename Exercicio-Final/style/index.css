@@ -288,7 +288,8 @@ header img {
 #createUser, 
 #dateTransfer, #btnTransferToday, #executeTransfer,
 #executeDeposit,
-#setLoan, #dateLoan, #btnLoanToday, 
+#setLoan, #dateLoan, #btnLoanToday,
+#customAEditOkButton,
 #collectSection, #collectSectionTransactions {
     margin: 2rem auto;
     border: 2.5px solid var(--color-tertiary);
@@ -318,7 +319,7 @@ header img {
 #nameUser, #emailUser, #passwordUser, #capitalUser, 
 #nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient,
 #nameAccount, #emailAccount, #valueDeposit,
-#nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser {
+#nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser, #newEmailUser, #newNameUser {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
@@ -376,9 +377,16 @@ header img {
 #dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, 
 #executeDeposit:hover,
 #dateLoan:hover, #btnLoanToday:hover, #setLoan:hover, 
+#customAEditOkButton:hover,
 #collectSectionTransactions:hover, #collectSection:hover {
     background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
     transform: scale(1.02);
+}
+
+#btnsController {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Muda de escala quando clicavel */
@@ -386,6 +394,7 @@ header img {
 #dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, 
 #executeDeposit:active,
 #dateLoan:active, #btnLoanToday:active, #setLoan:active, 
+#customAEditOkButton:active,
 #collectSectionTransactions:active, #collectSection:active {
     transform: scale(0.99);
 }
@@ -704,12 +713,38 @@ header img {
     max-width: 120px; /* Limite de largura para botões em telas maiores */
 }
 
-.delete-button:hover {
+#customEditCancelButton {
+    border: 2px solid var(--color-tertiary);
+    background: var(--color-delete-btn);
+    border-radius: .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    font-family: var(--font-secondary);
+    letter-spacing: 1px;
+    padding: 0.6rem 1.2rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+    transition: background 0.3s ease, transform 0.3s ease;
+    flex-grow: 1; /* Faz os botões crescerem para preencher o espaço */
+    max-width: 120px; /* Limite de largura para botões em telas maiores */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2.8rem;
+    width: 100%;
+    max-height: 3rem;
+    max-width: 14rem;
+    text-align: center;
+}
+
+.delete-button:hover, #customEditCancelButton:hover {
     background: linear-gradient(135deg,#be0f0f 0%, #c4840e 100%); /* Gradiente de hover */
     transform: scale(1.05);
 }
 
-.delete-button:active {
+.delete-button:active, #customEditCancelButton:active {
     transform: scale(0.98);
 }
 
@@ -867,7 +902,7 @@ header img {
 }
 
 /* Conteúdo interno da caixa de alerta */
-.custom-alert-content, #customEditContent {
+.custom-alert-content {
     background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
     color: #f0f0f0; /* Texto claro */
     padding: 30px;
@@ -876,10 +911,27 @@ header img {
     text-align: center;
     max-width: 400px;
     width: 90%; /* Responsividade */
+    height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
     line-height: 1.5;
     position: relative; /* Necessário se quiser adicionar elementos posicionados absolutos dentro */
+}
+
+#customEditContent {
+    background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
+    color: #f0f0f0; /* Texto claro */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Sombra para profundidade */
+    text-align: center;
+    max-width: 400px;
+    width: 90%; /* Responsividade */
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+     /* Necessário se quiser adicionar elementos posicionados absolutos dentro */
 }
 
 .custom-alert-content p {
@@ -914,7 +966,7 @@ header img {
     font-style: italic !important;
 }
 
-/* Para navegadores baseados em WebKit (Chrome, Safari, Edge, etc.) */
+/* FOCUS QUANDO INPUT E PREENCHIDO COM DADOS DO LOCAL STORAGE Para navegadores baseados em WebKit (Chrome, Safari, Edge, etc.) */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -934,6 +986,26 @@ input:-webkit-autofill:active {
 
     /* Garante que outras propriedades como borda permaneçam as suas */
     border-color: #e5e7ebb9 !important; /* Cor da borda do seu input */
+}
+
+/* FOCUS PARA RETIRAR O OLHINHO DA SENHA */
+/* Para navegadores baseados em Webkit (Chrome, Edge, Safari, Opera) */
+input[type="password"]::-webkit-password-toggle-button {
+    display: none;
+    -webkit-appearance: none; /* Garante que não haja nenhum estilo padrão */
+}
+
+/* Para o Internet Explorer/Edge antigo (embora Edge agora use Webkit) */
+input[type="password"]::-ms-reveal {
+    display: none;
+    -ms-appearance: none; /* Garante que não haja nenhum estilo padrão */
+}
+
+/* Por garantia, para remover qualquer estilo padrão que o navegador possa aplicar ao input */
+input[type="password"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 @media (prefers-color-scheme: light) {
