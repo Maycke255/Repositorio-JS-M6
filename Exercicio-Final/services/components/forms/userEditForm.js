@@ -56,13 +56,13 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
 
     const togglePassword = document.createElement('img');
     togglePassword.classList.add('password-toggle-icon');
-    togglePassword.src = '../../../imgs/icons8-eye-closed.png'; 
+    togglePassword.src = '../../../../imgs/icons8-eye-closed.png'; 
     togglePassword.alt = 'Mostrar senha'; 
 
     togglePassword.addEventListener('click', function () {
         const type = passwordUserInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordUserInput.setAttribute('type', type);
-        this.src = (type === 'text') ? '../../../imgs/icons8-eye-closed.png' : '../../../imgs/icons8-eye-50.png'; 
+        this.src = (type === 'text') ? '../../../../imgs/icons8-eye-closed.png' : '../../../../imgs/icons8-eye-50.png'; 
         this.alt = (type === 'text') ? 'Esconder senha' : 'Mostrar senha';
     });
 
