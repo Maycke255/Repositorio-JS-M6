@@ -1,5 +1,7 @@
 //Arquivo para criar funções pequenas para gerenciar a criação de elementos como div, p, button
 
+import { containerInputs, customEditOverlay, customEditInputs } from "../../src/entities/elements.js";
+
 // Função para esconder e remover a seção de transações (exibição de usuários)
 export function hideTransactionSection(wrapperElement) {
 
@@ -59,4 +61,12 @@ export function createButton(textContent, id, className, dataset = {}) {
         button.dataset[key] = dataset[key];
     }
     return button;
+}
+
+// Função para fechar o formulário de edição
+export function closeEditForm() {
+    containerInputs.innerHTML = '';
+    customEditOverlay.classList.remove('visible');
+    customEditInputs.classList.remove('visible');
+    // Você pode adicionar a remoção de classes de botões aqui se elas forem dinâmicas
 }

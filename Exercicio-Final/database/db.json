@@ -5,10 +5,15 @@
       "name": "Maycke",
       "email": "reydsonk@gmail.com",
       "password": "123456",
-      "capital": 16200
+      "capital": 16250
     }
   ],
   "transfers": [],
-  "deposits": [],
+  "deposits": [
+    {
+      "value": 100,
+      "id": "1b91"
+    }
+  ],
   "loans": []
 }

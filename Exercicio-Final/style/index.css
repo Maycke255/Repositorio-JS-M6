@@ -607,7 +607,7 @@ header img {
 
 
 /* ===== ESTILO PARA OS GRIDS ===== */
-.users-grid-container, .trasnfer-grid-container, .deposits-grid-container, .loans-grid-container  {
+.users-grid-container, .trasnfers-grid-container, .deposits-grid-container, .loans-grid-container  {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Colunas responsivas */
     gap: 1.5rem; /* Espaçamento entre os cartões */
@@ -617,7 +617,7 @@ header img {
     padding: 1rem;
 }
 
-.user-card, .transfers-card, .deposits-card, .loans-card {
+.user-card, .transfer-card, .deposit-card, .loan-card {
     background-color: var(--color-quintennial); /* Fundo dos cartões */
     border: 2.5px solid var(--color-tertiary);
     border-radius: .75rem;
@@ -631,7 +631,7 @@ header img {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.user-card:hover, .transfers-card:hover, .deposits-card:hover, .loans-card:hover {
+.user-card:hover, .transfer-card:hover, .deposit-card:hover, .loan-card:hover {
     transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
     box-shadow: var(--shadow-light-strong);
 }
@@ -653,14 +653,14 @@ header img {
     text-shadow: var(--shadow-dark); /* Adiciona uma leve sombra para destacar */
 }
 
-.user-card-detail, .transfers-card-detail, .deposits-card-detail, .loans-card-detail, .loans-card-installments {
+.user-card-detail, .transfer-card-detail, .deposit-card-detail, .loan-card-detail, .loan-card-installments {
     font-size: 0.95rem;
     color: var(--color-tertiary);
     margin-bottom: 0.4rem;
     word-break: break-all; /* Quebra palavras longas como e-mails */
 }
 
-.user-actions, .transfers-actions, .deposits-actions, .loans-actions {
+.user-actions, .transfer-actions, .deposit-actions, .loan-actions {
     display: flex;
     gap: 1rem; /* Espaçamento entre os botões */
     margin-top: 1.5rem;
@@ -867,10 +867,18 @@ header img {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7); /* Preto semi-transparente */
-    z-index: 999; /* Garante que fique acima de outros elementos */
+
     opacity: 0; /* Começa invisível */
     visibility: hidden; /* Esconde completamente */
     transition: opacity 0.3s ease, visibility 0.3s ease; /* Animação suave */
+}
+
+#customAlertOverlay {
+    z-index: 999;
+}
+
+#customEditOverlay {
+    z-index: 990;
 }
 
 /* Caixa de Alerta Principal */
@@ -879,12 +887,17 @@ header img {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100%; /* Mantemos 100% para o container fixo, mas permitimos rolagem *dele* se necessário para cenários extremos, embora o ideal seja o conteúdo interno rolar */
     z-index: 1000; /* Acima do overlay */
     display: flex; /* Para centralizar o conteúdo */
-    align-items: baseline; /* Centraliza verticalmente */
+    /* REMOVIDO: margin-top: 3rem; --> ele empurrava o conteúdo para fora da tela */
+    align-items: center; /* ALTERADO: para centralizar verticalmente o conteúdo interno */
     justify-content: center; /* Centraliza horizontalmente */
-    margin-top: 3rem;
+    /* ADICIONADO: overflow-y ao container principal para garantir que,
+       se o modal como um todo for maior que a tela, ele possa rolar.
+       Mas a rolagem principal será no .custom-alert-content. */
+    overflow-y: auto; /* Permite a rolagem do container fixo se o item flex for muito grande */
+
     opacity: 0; /* Começa invisível */
     visibility: hidden; /* Esconde completamente */
     transform: translateY(-20px); /* Posição inicial um pouco acima para animação */
@@ -902,8 +915,8 @@ header img {
 }
 
 /* Conteúdo interno da caixa de alerta */
-.custom-alert-content {
-    background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
+.custom-alert-content, #customEditContent  {
+    background-color: #2c2c2c; /* Cinza escuro */
     color: #f0f0f0; /* Texto claro */
     padding: 30px;
     border-radius: 8px;
@@ -911,27 +924,25 @@ header img {
     text-align: center;
     max-width: 400px;
     width: 90%; /* Responsividade */
-    height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
     line-height: 1.5;
     position: relative; /* Necessário se quiser adicionar elementos posicionados absolutos dentro */
-}
 
-#customEditContent {
-    background-color: #2c2c2c; /* Cinza escuro, como o tema da Adapta */
-    color: #f0f0f0; /* Texto claro */
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Sombra para profundidade */
-    text-align: center;
-    max-width: 400px;
-    width: 90%; /* Responsividade */
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-     /* Necessário se quiser adicionar elementos posicionados absolutos dentro */
+    /* --- ADIÇÕES IMPORTANTES AQUI PARA O SCROLL --- */
+    max-height: calc(100vh - 60px); /* Define a altura máxima. 100vh é a altura da viewport.
+                                    Os 60px (ou outro valor) servem como margem/espaço
+                                    (30px em cima e 30px embaixo) para que o modal não encoste
+                                    nas bordas superior/inferior da tela.
+                                    Ajuste este valor conforme necessário. */
+    overflow-y: auto; /* Permite a rolagem APENAS do conteúdo interno, se ele exceder o max-height */
+    box-sizing: border-box; /* Garante que o padding não adicione à altura/largura total */
+    /* OPCIONAL: Adiciona uma margem superior e inferior ao modal em si,
+       e centraliza horizontalmente. Isso é opcional, mas pode
+       ser usado para dar um "respiro" se não quiser que ele
+       fique perfeitamente centralizado e permita um espaço superior fixo.
+       Se você quer ele sempre centralizado perfeitamente, remova esta linha. */
+    margin: 30px auto;
 }
 
 .custom-alert-content p {
@@ -942,6 +953,17 @@ header img {
 #containerInputs {
     display: flex;
     flex-direction: column;
+}
+
+/* Botões Salvar e Cancelar dentro de #customEditContent */
+/* Certifique-se de que o #btnsController esteja dentro do #customEditContent
+   no seu HTML para que ele seja afetado pelo scroll. */
+#btnsController {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px; /* Adiciona um espaço entre os inputs e os botões */
+    padding-top: 10px; /* Garante que os botões não fiquem colados no final do scroll */
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha divisória opcional */
 }
 
 /* Botão "OK" dentro do alerta */

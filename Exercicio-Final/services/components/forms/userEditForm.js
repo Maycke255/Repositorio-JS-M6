@@ -6,7 +6,9 @@ import { customEditOverlay, customEditInputs, containerInputs,
 import { showCustomAlert } from '../../../src/app.js';
 
 // Importa funções utilitárias do DOM
-import { createDiv, createH } from '../../utils/utils.js';
+import { createDiv, createH, closeEditForm } from '../../utils/utils.js';
+
+
 
 // Esta função agora recebe o usuário a ser editado e um callback para quando salvar
 export function setupUserEditForm(userToEdit, onSaveCallback) {
@@ -93,6 +95,13 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
         if (passwordUserInput.value !== '') { 
             updatedData.password = passwordUserInput.value;
         }
+
+        // Se nenhum campo foi de fato alterado, avisa o usuário
+        if (Object.keys(updatedData).length === 0) {
+            showCustomAlert('Nenhuma alteração foi feita.');
+            closeEditForm();
+            return;
+        }
         
         await onSaveCallback(userToEdit.id, updatedData); // Chama o callback principal para salvar
         closeEditForm(); // Fecha o formulário após salvar
@@ -111,11 +120,4 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
 
     customAEditOkButton.addEventListener('click', handleSave);
     customEditCancelButton.addEventListener('click', handleCancel);
-}
-
-// Função para fechar o formulário de edição
-function closeEditForm() {
-    containerInputs.innerHTML = '';
-    customEditOverlay.classList.remove('visible');
-    customEditInputs.classList.remove('visible');
 }
