@@ -319,7 +319,8 @@ header img {
 #nameUser, #emailUser, #passwordUser, #capitalUser, 
 #nameSender, #emailSender, #valueTransfer, #nameRecipient, #emailRecipient,
 #nameAccount, #emailAccount, #valueDeposit,
-#nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser, #newEmailUser, #newNameUser {
+#nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser, #newEmailUser, #newNameUser, 
+#newNameDeposit, #newEmailDeposit, #newValueDeposit {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;

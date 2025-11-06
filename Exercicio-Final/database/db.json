@@ -3,16 +3,24 @@
     {
       "id": "b771",
       "name": "Maycke",
-      "email": "reydsonk@gmail.com",
+      "email": "aaa111@gmail.com",
       "password": "123456",
-      "capital": 16250
+      "capital": 16900
     }
   ],
   "transfers": [],
   "deposits": [
     {
-      "value": 100,
-      "id": "1b91"
+      "id": "917c",
+      "name": "Maycke Alexandre",
+      "email": "reydsonk@gmail.com",
+      "value": 250
+    },
+    {
+      "id": "0b55",
+      "name": "Maycke Alexandre",
+      "email": "aaa111@gmail.com",
+      "value": 100
     }
   ],
   "loans": []
