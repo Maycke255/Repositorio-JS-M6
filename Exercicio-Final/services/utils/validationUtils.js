@@ -1,21 +1,29 @@
-import { fetchData } from '../api.js'; // Precisamos da função fetchData para consultar a API
+// services/utils/validationUtils.js
+
+import { fetchData } from '../api.js'; // Importe fetchData
 
 /**
- * Verifica se um e-mail está cadastrado na base de usuários.
- * @param {string} email - O e-mail a ser verificado.
- * @returns {Promise<boolean>} - True se o e-mail existir, False caso contrário.
+ * Encontra um usuário pelo e-mail na base de dados.
+ * @param {string} email - O e-mail do usuário a ser buscado.
+ * @returns {Promise<object|null>} - Retorna o objeto do usuário se encontrado, ou null caso contrário.
  */
-export async function checkUserEmailExists(email) {
+export async function findUserByEmail(email) {
     if (!email || email.trim() === '') {
-        return false; // Um e-mail vazio ou em branco não "existe"
+        return null;
     }
     try {
         // Usa o endpoint de usuários com um filtro por e-mail
+        // `fetchData` com filtro retorna um array, então pegamos o primeiro elemento
         const users = await fetchData(`users?email=${encodeURIComponent(email)}`);
-        return users.length > 0; // Se encontrar pelo menos um usuário com o e-mail, ele existe
+        return users.length > 0 ? users[0] : null; // Retorna o primeiro usuário encontrado ou null
     } catch (error) {
-        console.error('Erro ao verificar e-mail do usuário:', error);
-        // Em caso de erro na API, por segurança, podemos considerar que não existe ou lançar o erro
-        return false;
+        console.error('Erro ao buscar usuário por e-mail:', error);
+        return null;
     }
+}
+
+// Se você ainda precisar de uma função que retorne apenas booleano em outros lugares:
+export async function checkUserEmailExists(email) {
+    const user = await findUserByEmail(email);
+    return user !== null;
 }

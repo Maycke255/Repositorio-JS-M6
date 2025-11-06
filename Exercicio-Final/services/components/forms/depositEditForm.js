@@ -1,38 +1,41 @@
 // services/components/forms/depositEditForm.js
 
-// Importa elementos DOM do seu entities/elements.js
 import { customEditOverlay, customEditInputs, containerInputs,
          customAEditOkButton, customEditCancelButton } from '../../../src/entities/elements.js';
 
-// Importa a função showCustomAlert do seu app.js (sem alterá-lo!)
 import { showCustomAlert } from '../../../src/app.js';
 
-// Importa funções utilitárias do DOM
-import { createDiv, createH, closeEditForm } from '../../utils/utils.js'; // Assegure-se que 'utils' é o nome correto da pasta, e 'utils.js' do arquivo.
+import { createDiv, createH } from '../../utils/utils.js'; // Garanta que 'closeEditForm' não está vindo daqui
 
-// Importa a nova função de validação de e-mail
-import { checkUserEmailExists } from '../../utils/validationUtils.js';
+// Importa a nova função para buscar usuário por e-mail
+import { findUserByEmail } from '../../utils/validationUtils.js';
 
-// Esta função agora recebe o depósito a ser editado e um callback para quando salvar
+// Função para fechar o formulário de edição (Movida para cá ou para um utils geral)
+function closeEditForm() {
+    containerInputs.innerHTML = '';
+    customEditOverlay.classList.remove('visible');
+    customEditInputs.classList.remove('visible');
+}
+
 export function setupDepositEditForm(depositToEdit, onSaveCallback) {
 
-    containerInputs.innerHTML = ''; // Limpa qualquer conteúdo anterior do formulário
+    containerInputs.innerHTML = '';
 
-    // Subtítulo do formulário
     const subtitle = createH(3, 'Insira as informações que deseja alterar, e depois clique em "Salvar informações"', 'subtitle-deposit');
     containerInputs.append(subtitle);
 
-    // Campo Nome
+    // Campo Nome (preenchido, mas será atualizado se o e-mail for alterado)
     const groupNewName = createDiv('group-name', 'new-deposit');
     const labelName = document.createElement('label');
-    labelName.htmlFor = 'newNameDeposit'; // ID único para este input
+    labelName.htmlFor = 'newNameDeposit';
     labelName.classList.add('name-label');
-    labelName.textContent = 'Alterar nome de quem recebeu o deposito:';
+    labelName.textContent = 'Nome do recebedor do depósito:'; // Mudança de texto
     const nameDepositInput = document.createElement('input');
     nameDepositInput.type = 'text';
-    nameDepositInput.id = 'newNameDeposit'; // ID único
+    nameDepositInput.id = 'newNameDeposit';
     nameDepositInput.name = 'depositName';
-    nameDepositInput.value = depositToEdit.name || ''; // Preenche com o nome atual do depósito
+    nameDepositInput.value = depositToEdit.name || '';
+    nameDepositInput.readOnly = true; // <--- Tornar somente leitura, nome é derivado do email
     groupNewName.append(labelName, nameDepositInput);
 
     // Campo E-mail
@@ -40,88 +43,110 @@ export function setupDepositEditForm(depositToEdit, onSaveCallback) {
     const labelEmail = document.createElement('label');
     labelEmail.htmlFor = 'newEmailDeposit';
     labelEmail.classList.add('email-label');
-    labelEmail.textContent = 'Alterar e-mail do usuário que recebeu o deposito:'; // Corrigi o texto para clareza
+    labelEmail.textContent = 'E-mail do usuário que recebeu o depósito:';
     const emailDepositInput = document.createElement('input');
     emailDepositInput.type = 'email';
     emailDepositInput.id = 'newEmailDeposit';
     emailDepositInput.name = 'email';
-    emailDepositInput.value = depositToEdit.email || ''; // Preenche com o e-mail atual do depósito
+    emailDepositInput.value = depositToEdit.email || '';
     groupNewEmail.append(labelEmail, emailDepositInput);
+
+    // Adiciona um listener para atualizar o nome automaticamente se o e-mail mudar e for válido
+    emailDepositInput.addEventListener('blur', async () => {
+        const newEmail = emailDepositInput.value.trim();
+        if (newEmail && newEmail !== depositToEdit.email) {
+            const user = await findUserByEmail(newEmail);
+            if (user) {
+                nameDepositInput.value = user.name;
+            } else {
+                nameDepositInput.value = ''; // Limpa se o e-mail não existir
+                showCustomAlert(`O e-mail "${newEmail}" não está cadastrado.`);
+            }
+        } else if (!newEmail) {
+            nameDepositInput.value = ''; // Limpa se o e-mail estiver vazio
+        } else if (newEmail === depositToEdit.email) {
+            nameDepositInput.value = depositToEdit.name; // Volta ao original se o email for o mesmo
+        }
+    });
 
     // Campo valor
     const groupNewValueDeposit = createDiv('group-value', 'new-deposit');
     const labelNewValueDeposit = document.createElement('label');
     labelNewValueDeposit.htmlFor = 'newValueDeposit';
     labelNewValueDeposit.classList.add('value-deposit-label');
-    labelNewValueDeposit.textContent = 'Informe o NOVO valor do depósito:'; // Texto mais direto
+    labelNewValueDeposit.textContent = 'Informe o NOVO valor do depósito:';
     const newValueDepositInput = document.createElement('input');
     newValueDepositInput.type = 'number';
     newValueDepositInput.id = 'newValueDeposit';
     newValueDepositInput.name = 'value';
     newValueDepositInput.min = '0.01';
     newValueDepositInput.step = 'any';
-    newValueDepositInput.value = depositToEdit.value || ''; // Preenche com o valor atual
+    newValueDepositInput.value = depositToEdit.value || '';
     groupNewValueDeposit.append(labelNewValueDeposit, newValueDepositInput);
 
-    // ADICIONA TODOS OS GRUPOS DE CAMPOS AO CONTAINER (REMOVIDO groupNewPassword)
     containerInputs.append(groupNewName, groupNewEmail, groupNewValueDeposit);
 
-    // Mostra o overlay e a caixa de edição
     customEditOverlay.classList.add('visible');
     customEditInputs.classList.add('visible');
 
-    // Funções para lidar com o clique nos botões Salvar e Cancelar
     const handleSave = async (ev) => {
         ev.preventDefault();
         const updatedData = {};
 
-        // 1. VERIFICAÇÃO DO E-MAIL (NOVA FUNCIONALIDADE)
         const newEmail = emailDepositInput.value.trim();
-        if (newEmail !== depositToEdit.email) { // Só verifica se o e-mail foi alterado
-            const emailExists = await checkUserEmailExists(newEmail);
-            if (!emailExists) {
-                showCustomAlert(`O e-mail "${newEmail}" não está cadastrado. Por favor, insira um e-mail de usuário existente.`);
-                return; // Impede a continuação do salvamento
-            }
-        }
-
-        // Verifica e atualiza o nome
-        if (nameDepositInput.value.trim() !== '' && nameDepositInput.value !== depositToEdit.name) {
-            updatedData.name = nameDepositInput.value.trim();
-        }
-        // Verifica e atualiza o e-mail
-        if (newEmail !== '' && newEmail !== depositToEdit.email) {
-            updatedData.email = newEmail;
-        }
-
-        // Verifica e atualiza o valor
+        const newName = nameDepositInput.value.trim(); // Pega o nome atualizado do campo (que pode ter sido preenchido automaticamente)
         const newValue = parseFloat(newValueDepositInput.value);
-        if (!isNaN(newValue) && newValue >= 0.01 && newValue !== depositToEdit.value) {
-            updatedData.value = newValue;
-        } else if (newValueDepositInput.value.trim() !== '' && (isNaN(newValue) || newValue < 0.01)) {
+
+        // 1. Validação do E-mail
+        if (!newEmail) {
+            showCustomAlert('O e-mail não pode estar vazio.');
+            return;
+        }
+        const userFound = await findUserByEmail(newEmail);
+        if (!userFound) {
+            showCustomAlert(`O e-mail "${newEmail}" não está cadastrado. Por favor, insira um e-mail de usuário existente.`);
+            return;
+        }
+
+        // 2. Validação do Valor
+        if (isNaN(newValue) || newValue < 0.01) {
             showCustomAlert('Por favor, insira um valor de depósito válido (maior ou igual a 0.01).');
             return;
         }
 
-        // Se nenhum campo foi de fato alterado, avisa o usuário
+        // Preenche updatedData com o que realmente mudou
+        if (newEmail !== depositToEdit.email) {
+            updatedData.email = newEmail;
+            updatedData.name = userFound.name; // Atualiza o nome com o do usuário encontrado
+        } else if (newName !== depositToEdit.name && !updatedData.email) { // Se o email não mudou, mas o nome sim (caso manual)
+            updatedData.name = newName;
+        }
+        // Se o email não mudou e o nome também não mudou, não adiciona name/email a updatedData
+        // Se o email mudou, name já foi adicionado acima
+
+        if (newValue !== depositToEdit.value) {
+            updatedData.value = newValue;
+        }
+
         if (Object.keys(updatedData).length === 0) {
             showCustomAlert('Nenhuma alteração foi feita.');
             closeEditForm();
             return;
         }
 
-        await onSaveCallback(depositToEdit.id, updatedData); // Chama o callback principal para salvar
-        closeEditForm(); // Fecha o formulário após salvar
+        // Chama o callback com os dados atualizados
+        await onSaveCallback(depositToEdit.id, updatedData, depositToEdit); // <--- Passa o depositToEdit original
+        closeEditForm();
     };
 
-    //Cancelar
     const handleCancel = (ev) => {
         ev.preventDefault();
-        closeEditForm(); // Fecha o formulário ao cancelar
+        closeEditForm();
     };
 
     // É importante remover os listeners antigos antes de adicionar novos para evitar
     // que a função seja chamada múltiplas vezes se o formulário for aberto e fechado.
+    // Você não precisa importar closeEditForm, pois ela está definida neste próprio arquivo agora.
     customAEditOkButton.removeEventListener('click', handleSave);
     customEditCancelButton.removeEventListener('click', handleCancel);
 

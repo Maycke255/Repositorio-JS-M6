@@ -1,4 +1,4 @@
-// src/services/api.js
+// services/api.js
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -30,11 +30,11 @@ export async function deleteResource(type, id) {
     }
 }
 
-// Você pode adicionar funções específicas de PUT aqui mais tarde
+// MUDANÇA AQUI: de 'PUT' para 'PATCH'
 export async function updateResource(type, id, data) {
     try {
         const response = await fetch(`${API_BASE_URL}/${type}/${id}`, {
-            method: 'PUT',
+            method: 'PATCH', // <--- ALTERADO: Use PATCH para atualizações parciais
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
