@@ -1,13 +1,15 @@
+// services/components/forms/userEditForm.js
+
 // Importa elementos DOM do seu entities/elements.js
-import { customEditOverlay, customEditInputs, containerInputs, 
+// Estes são necessários aqui para mostrar o overlay e os botões
+import { customEditOverlay, customEditInputs, containerInputs,
          customAEditOkButton, customEditCancelButton } from '../../../src/entities/elements.js';
 
 // Importa a função showCustomAlert do seu app.js (sem alterá-lo!)
 import { showCustomAlert } from '../../../src/app.js';
 
-// Importa funções utilitárias do DOM
-import { createDiv, createH, closeEditForm } from '../../utils/utils.js';
-
+// Importa funções utilitárias do DOM, incluindo closeEditForm
+import { createDiv, createH, closeEditForm } from '../../utils/utils.js'; // <--- closeEditForm agora vem daqui!
 
 
 // Esta função agora recebe o usuário a ser editado e um callback para quando salvar
@@ -33,7 +35,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
     groupNewName.append(labelName, nameUserInput);
 
     // Campo E-mail
-    const groupNewEmail = createDiv('group-email', 'new-users'); 
+    const groupNewEmail = createDiv('group-email', 'new-users');
     const labelEmail = document.createElement('label');
     labelEmail.htmlFor = 'newEmailUser';
     labelEmail.classList.add('email-label');
@@ -46,7 +48,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
     groupNewEmail.append(labelEmail, emailUserInput);
 
     // Campo Senha (com o toggle de visibilidade)
-    const groupNewPassword = createDiv('group-password', 'new-users'); 
+    const groupNewPassword = createDiv('group-password', 'new-users');
     const labelPassword = document.createElement('label');
     labelPassword.htmlFor = 'newPasswordUser';
     labelPassword.classList.add('password-label');
@@ -58,13 +60,13 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
 
     const togglePassword = document.createElement('img');
     togglePassword.classList.add('password-toggle-icon');
-    togglePassword.src = '../../../../imgs/icons8-eye-closed.png'; 
-    togglePassword.alt = 'Mostrar senha'; 
+    togglePassword.src = '../../../../imgs/icons8-eye-closed.png';
+    togglePassword.alt = 'Mostrar senha';
 
     togglePassword.addEventListener('click', function () {
         const type = passwordUserInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordUserInput.setAttribute('type', type);
-        this.src = (type === 'text') ? '../../../../imgs/icons8-eye-50.png' : '../../../../imgs/icons8-eye-closed.png'; 
+        this.src = (type === 'text') ? '../../../../imgs/icons8-eye-50.png' : '../../../../imgs/icons8-eye-closed.png';
         this.alt = (type === 'text') ? 'Esconder senha' : 'Mostrar senha';
     });
 
@@ -76,7 +78,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
     containerInputs.append(groupNewName, groupNewEmail, groupNewPassword);
 
     // Mostra o overlay e a caixa de edição
-    customEditOverlay.classList.add('visible'); 
+    customEditOverlay.classList.add('visible');
     customEditInputs.classList.add('visible');
 
     // Funções para lidar com o clique nos botões Salvar e Cancelar
@@ -92,7 +94,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
             updatedData.email = emailUserInput.value;
         }
         // Se o campo de senha não estiver vazio, significa que o usuário quer alterar
-        if (passwordUserInput.value !== '') { 
+        if (passwordUserInput.value !== '') {
             updatedData.password = passwordUserInput.value;
         }
 
@@ -102,7 +104,7 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
             closeEditForm();
             return;
         }
-        
+
         await onSaveCallback(userToEdit.id, updatedData); // Chama o callback principal para salvar
         closeEditForm(); // Fecha o formulário após salvar
     };
@@ -113,8 +115,6 @@ export function setupUserEditForm(userToEdit, onSaveCallback) {
         closeEditForm(); // Fecha o formulário ao cancelar
     };
 
-    // É importante remover os listeners antigos antes de adicionar novos para evitar
-    // que a função seja chamada múltiplas vezes se o formulário for aberto e fechado.
     customAEditOkButton.removeEventListener('click', handleSave);
     customEditCancelButton.removeEventListener('click', handleCancel);
 

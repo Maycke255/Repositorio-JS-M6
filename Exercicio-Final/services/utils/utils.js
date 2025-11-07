@@ -1,72 +1,106 @@
-//Arquivo para criar funções pequenas para gerenciar a criação de elementos como div, p, button
+// services/utils/utils.js
 
-import { containerInputs, customEditOverlay, customEditInputs } from "../../src/entities/elements.js";
+import { fetchData } from '../api.js'; // Precisamos de fetchData para popular os caches
+// Importa elementos DOM de entities/elements.js para closeEditForm
+import { customEditOverlay, customEditInputs, containerInputs,
+         customAEditOkButton, customEditCancelButton } from '../../src/entities/elements.js';
 
-// Função para esconder e remover a seção de transações (exibição de usuários)
-export function hideTransactionSection(wrapperElement) {
 
-    if (!wrapperElement || !wrapperElement.classList.contains('transactions-section-active')) {
-        return;
+// --- Cache para dados ---
+let allUsersCache = [];
+let allDepositsCache = [];
+
+// --- Funções de carregamento e atualização do cache ---
+export async function loadAndCacheAllUsers() {
+    try {
+        allUsersCache = await fetchData('users');
+        console.log('Users cache loaded:', allUsersCache);
+    } catch (error) {
+        console.error('Erro ao carregar usuários para cache:', error);
+        allUsersCache = [];
     }
-    // CORRIGIDO 1: Remover a classe correta
-    wrapperElement.classList.remove('transactions-section-active');
-    // CORRIGIDO 2: Usar o seletor correto para o último elemento animado
-    const lastAnimatedElement = wrapperElement.querySelector('.btns-transactions-group');
-
-    if (!lastAnimatedElement) {
-        setTimeout(() => { wrapperElement.innerHTML = ''; }, 600);
-        return;
-    }
-
-    lastAnimatedElement.addEventListener('transitionend', function handler(e) {
-        if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
-            wrapperElement.innerHTML = '';
-            lastAnimatedElement.removeEventListener('transitionend', handler);
-        }
-    },
-    { once: true });
 }
 
-// Funções utilitárias para criar elementos DOM de forma mais limpa
-export function createDiv(className, ...additionalClasses) {
+export async function loadAndCacheAllDeposits() {
+    try {
+        allDepositsCache = await fetchData('deposits');
+        console.log('Deposits cache loaded:', allDepositsCache);
+    } catch (error) {
+        console.error('Erro ao carregar depósitos para cache:', error);
+        allDepositsCache = [];
+    }
+}
+
+// --- Funções de busca no cache ---
+export function findUserById(id) {
+    return allUsersCache.find(user => user.id === id);
+}
+
+export function findDepositById(id) {
+    return allDepositsCache.find(deposit => deposit.id === id);
+}
+
+export function findUserByEmail(email) {
+    return allUsersCache.find(user => user.email === email);
+}
+
+// --- Funções de criação de elementos DOM ---
+export function createDiv(className, id = null) {
     const div = document.createElement('div');
-    if (className) div.classList.add(className);
-    if (additionalClasses.length > 0) div.classList.add(...additionalClasses);
+    div.className = className;
+    if (id) {
+        div.id = id;
+    }
     return div;
 }
 
-export function createP(textContent, className, ...additionalClasses) {
+export function createP(textContent, className = null, id = null) {
     const p = document.createElement('p');
     p.textContent = textContent;
-    if (className) p.classList.add(className);
-    if (additionalClasses.length > 0) p.classList.add(...additionalClasses);
+    if (className) p.className = className;
+    if (id) p.id = id;
     return p;
 }
 
-export function createH(level, textContent, className, ...additionalClasses) {
-    const h = document.createElement(`h${level}`); // level pode ser 1, 2, 3...
+export function createH(level, textContent, className = null, id = null) {
+    const h = document.createElement(`h${level}`);
     h.textContent = textContent;
-    if (className) h.classList.add(className);
-    if (additionalClasses.length > 0) h.classList.add(...additionalClasses);
+    if (className) h.className = className;
+    if (id) h.id = id;
     return h;
 }
 
-export function createButton(textContent, id, className, dataset = {}) {
+export function createButton(textContent, id = null, ...classNames) {
     const button = document.createElement('button');
-    button.type = 'button';
     button.textContent = textContent;
-    button.id = id;
-    if (className) button.classList.add(className);
-    for (const key in dataset) {
-        button.dataset[key] = dataset[key];
-    }
+    if (id) button.id = id;
+    if (classNames.length > 0) button.classList.add(...classNames);
     return button;
 }
 
-// Função para fechar o formulário de edição
+// --- Função para esconder a seção de transações ---
+export function hideTransactionSection(sectionElement) {
+    sectionElement.classList.remove('transactions-section-active');
+    // Adiciona um timeout para remover o conteúdo APÓS a animação de esconder
+    setTimeout(() => {
+        sectionElement.innerHTML = '';
+        sectionElement.dataset.activeSection = ''; // Limpa a seção ativa
+    }, 300); // O tempo deve corresponder à duração da sua transição CSS
+}
+
+// --- Função para gerar ID único ---
+export function generateUniqueId() {
+    return Math.random().toString(36).substring(2, 6);
+}
+
+// --- FUNÇÃO closeEditForm (AGORA CENTRALIZADA AQUI) ---
 export function closeEditForm() {
     containerInputs.innerHTML = '';
     customEditOverlay.classList.remove('visible');
     customEditInputs.classList.remove('visible');
-    // Você pode adicionar a remoção de classes de botões aqui se elas forem dinâmicas
+
+    // REMOVA AS CLASSES se elas foram adicionadas dinamicamente e não são permanentes
+    // (Ajustei para o exemplo que tínhamos antes, você pode remover se não usa)
+    customAEditOkButton.classList.remove('botao-salvar-form');
+    customEditCancelButton.classList.remove('botao-cancelar-form', 'btn-danger');
 }
