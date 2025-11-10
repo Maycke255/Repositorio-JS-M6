@@ -2,25 +2,34 @@
   "users": [
     {
       "id": "b771",
-      "name": "Maycke",
-      "email": "aaa111@gmail.com",
-      "password": "123456",
-      "capital": 16900
-    }
-  ],
-  "transfers": [],
-  "deposits": [
-    {
-      "id": "917c",
-      "name": "Maycke Alexandre",
+      "name": "Kaio",
       "email": "reydsonk@gmail.com",
-      "value": 250
+      "password": "123456",
+      "capital": 17200
     },
     {
-      "id": "0b55",
-      "name": "Maycke Alexandre",
+      "id": "3353",
+      "name": "Maycke",
       "email": "aaa111@gmail.com",
-      "value": 100
+      "password": "may123456",
+      "capital": 950
+    }
+  ],
+  "transfers": [
+    {
+      "id": "d7b0",
+      "date": "2025-11-10",
+      "senderId": "3353",      
+      "recipientId": "b771"
+    }
+  ],
+  "deposits": [
+    {
+      "id": "0b55",
+      "userId": "b771",
+      "value": 250,
+      "email": "reydsonk@gmail.com",
+      "name": "Kaio"
     }
   ],
   "loans": []

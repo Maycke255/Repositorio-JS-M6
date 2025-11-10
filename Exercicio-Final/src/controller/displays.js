@@ -4,28 +4,26 @@
 // IMPORTS
 // =========================================================================
 
-// Importa showCustomAlert do seu app.js (sem alterá-lo!)
 import { showCustomAlert } from "../app.js";
 
-// Importa elementos DOM do seu entities/elements.js
 import { boxSelection, displayTransactions, trasactions,
          customEditOverlay, customEditInputs, containerInputs } from '../entities/elements.js';
 
-// Funções utilitárias do DOM e as novas de busca/cache
 import { hideTransactionSection, createDiv, createP, createH, createButton,
-         loadAndCacheAllUsers, loadAndCacheAllDeposits,
-         findUserById, findDepositById, findUserByEmail, generateUniqueId } from '../../services/utils/utils.js';
+         loadAndCacheAllUsers, loadAndCacheAllDeposits, loadAndCacheAllTransfers,
+         findUserById, findDepositById, findTransferById, findUserByEmail,
+         allUsersCache, allDepositsCache, allTransfersCache
+       } from '../../services/utils/utils.js';
 
-// Funções de interação com a API
 import { fetchData, deleteResource, updateResource } from '../../services/api.js';
 
-// Componentes de Cards
 import { createUserCardElement } from '../../services/components/cards/userCard.js';
 import { createDepositCardElement } from '../../services/components/cards/depositCard.js';
+import { createTransferCardElement } from '../../services/components/cards/transferCard.js';
 
-// Componentes de Formulários de Edição
 import { setupUserEditForm } from '../../services/components/forms/userEditForm.js';
 import { setupDepositEditForm } from '../../services/components/forms/depositEditForm.js';
+import { setupTransferEditForm } from '../../services/components/forms/transferEditForm.js';
 
 
 // =========================================================================
@@ -35,44 +33,59 @@ import { setupDepositEditForm } from '../../services/components/forms/depositEdi
 async function handleEditUser(user) {
     setupUserEditForm(user, async (userId, updatedFields) => {
         try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+
             if (Object.keys(updatedFields).length === 0) {
                 showCustomAlert('Nenhuma alteração foi feita.');
                 return;
             }
 
-            // Se o e-mail do usuário mudou, precisamos propagar para os depósitos
-            const oldEmail = user.email;
-            const newEmail = updatedFields.email;
-            const newName = updatedFields.name || user.name; // Novo nome, ou o nome atual se não foi atualizado
+            const currentUserFromCache = findUserById(userId);
+            if (!currentUserFromCache) {
+                 showCustomAlert('Erro: Usuário não encontrado no cache. A edição não pode prosseguir.');
+                 return;
+            }
+
+            const oldEmailFromCache = currentUserFromCache.email;
+            const oldNameFromCache = currentUserFromCache.name;
+            
+            const newEmail = updatedFields.email !== undefined ? updatedFields.email : oldEmailFromCache;
+            const newName = updatedFields.name !== undefined ? updatedFields.name : oldNameFromCache;
 
             const updatedUser = await updateResource('users', userId, updatedFields);
             showCustomAlert(`Usuário ${updatedUser.name} atualizado com sucesso!`);
 
-            // --- PROPAGAR ALTERAÇÕES DO USUÁRIO PARA OS DEPÓSITOS ---
-            if (newEmail && newEmail !== oldEmail) {
+            if (newEmail !== oldEmailFromCache || newName !== oldNameFromCache) {
                 const depositsToUpdate = allDepositsCache.filter(dep => dep.userId === userId);
                 await Promise.all(depositsToUpdate.map(async (dep) => {
-                    // Aqui estamos atualizando o depósito com o novo e-mail e nome do usuário
-                    // Mesmo que o depósito não armazene email/name, a API pode aceitar
-                    // E é uma forma de manter a consistência caso você mude de ideia
-                    // Ou se os cards de depósito ainda usam essas propriedades.
-                    await updateResource('deposits', dep.id, { email: newEmail, name: newName });
+                    const depositUpdateFields = {};
+                    if (newEmail !== oldEmailFromCache) {
+                        depositUpdateFields.email = newEmail;
+                    }
+                    if (newName !== oldNameFromCache) {
+                        depositUpdateFields.name = newName;
+                    }
+                    if (Object.keys(depositUpdateFields).length > 0) {
+                        await updateResource('deposits', dep.id, depositUpdateFields);
+                    }
                 }));
-            } else if (newName && newName !== user.name) {
-                // Se apenas o nome mudou, atualiza o nome nos depósitos também
-                 const depositsToUpdate = allDepositsCache.filter(dep => dep.userId === userId);
-                 await Promise.all(depositsToUpdate.map(async (dep) => {
-                     await updateResource('deposits', dep.id, { name: newName });
-                 }));
+                // Remeti a parte de propagação para transferências para o DELETE de usuário,
+                // pois transferências não armazenam name/email do remetente/destinatário.
+                // A única mudança relevante para transfers aqui seria se o userId mudasse,
+                // o que não faz sentido para a edição de um usuário.
             }
-            // --- FIM DA PROPAGAÇÃO ---
 
-            await loadAndCacheAllUsers(); // Recarrega o cache de usuários
-            await loadAndCacheAllDeposits(); // Recarrega o cache de depósitos
-            await renderUsersSection(); // Re-renderiza a seção de usuários para mostrar a alteração
-            // Opcional: se a seção de depósitos estiver visível, re-renderize-a também
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+            await renderUsersSection();
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'deposits') {
                 await renderDepositsSection();
+            }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'transfers') {
+                await renderTransfersSection();
             }
 
         } catch (error) {
@@ -83,25 +96,35 @@ async function handleEditUser(user) {
 }
 
 async function handleDeleteUser(user) {
-    if (confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Todos os seus depósitos também serão deletados!`)) {
+    if (confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Todos os seus depósitos e transferências também serão deletados!`)) {
         try {
-            // Primeiro, deleta todos os depósitos associados a este usuário
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+
             const userDeposits = allDepositsCache.filter(dep => dep.userId === user.id);
             await Promise.all(userDeposits.map(dep => deleteResource('deposits', dep.id)));
 
-            await deleteResource('users', user.id);
-            showCustomAlert(`Usuário ${user.name} e seus depósitos deletados com sucesso!`);
+            // Deleta todas as transferências onde o usuário é remetente OU destinatário
+            const userTransfers = allTransfersCache.filter(t => t.senderId === user.id || t.recipientId === user.id);
+            await Promise.all(userTransfers.map(t => deleteResource('transfers', t.id)));
 
-            await loadAndCacheAllUsers(); // Recarrega o cache de usuários
-            await loadAndCacheAllDeposits(); // Recarrega o cache de depósitos
+            await deleteResource('users', user.id);
+            showCustomAlert(`Usuário ${user.name}, seus depósitos e transferências deletados com sucesso!`);
+
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
 
             const userCardElement = document.querySelector(`.user-card[data-user-id="${user.id}"]`);
             if (userCardElement) {
                 userCardElement.remove();
             }
-            // Opcional: se a seção de depósitos estiver visível, re-renderize-a também
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'deposits') {
                 await renderDepositsSection();
+            }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'transfers') {
+                await renderTransfersSection();
             }
         } catch (error) {
             showCustomAlert('Erro ao deletar usuário. Verifique o console.');
@@ -115,65 +138,59 @@ async function handleDeleteUser(user) {
 // =========================================================================
 
 async function handleEditDeposit(deposit) {
-    // Passamos o depósito original e o callback
     setupDepositEditForm(deposit, async (depositId, updatedFields, originalDeposit) => {
         try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+
             if (Object.keys(updatedFields).length === 0) {
                 showCustomAlert('Nenhuma alteração foi feita.');
                 return;
             }
 
-            // 1. Fetch do usuário ORIGINAL e NOVO (se o e-mail mudou)
             const oldRecipientUser = findUserById(originalDeposit.userId);
             if (!oldRecipientUser) {
-                showCustomAlert('Erro: Usuário original do depósito não encontrado.');
+                showCustomAlert('Erro: Usuário original do depósito não encontrado no cache.');
                 return;
             }
 
             const oldDepositValue = originalDeposit.value;
-            const newDepositValue = updatedFields.value !== undefined ? updatedFields.value : oldDepositValue; // Pega o novo valor ou mantém o antigo
+            const newDepositValue = updatedFields.value !== undefined ? updatedFields.value : oldDepositValue;
 
             let updatedDeposit = null;
 
-            // Se o e-mail/userId do depósito mudou (ou seja, o depósito foi para outro usuário)
             if (updatedFields.userId && updatedFields.userId !== originalDeposit.userId) {
                 const newRecipientUser = findUserById(updatedFields.userId);
                 if (!newRecipientUser) {
-                    showCustomAlert('Erro: Novo usuário do depósito não encontrado.');
+                    showCustomAlert('Erro: Novo usuário do depósito não encontrado no cache.');
                     return;
                 }
 
-                // --- Ajuste de capital para a mudança de usuário ---
-                // Remove o valor antigo do usuário antigo
                 oldRecipientUser.capital = (oldRecipientUser.capital || 0) - oldDepositValue;
                 await updateResource('users', oldRecipientUser.id, { capital: oldRecipientUser.capital });
 
-                // Adiciona o novo valor ao novo usuário
                 newRecipientUser.capital = (newRecipientUser.capital || 0) + newDepositValue;
                 await updateResource('users', newRecipientUser.id, { capital: newRecipientUser.capital });
 
-                // Finalmente, atualiza o depósito
                 updatedDeposit = await updateResource('deposits', depositId, updatedFields);
-                showCustomAlert(`Depósito de ${updatedDeposit.name || updatedDeposit.email} transferido e atualizado com sucesso!`);
+                showCustomAlert(`Depósito de ${newRecipientUser.name} transferido e atualizado com sucesso!`);
 
             } else {
-                // Se o usuário do depósito NÃO MUDOU (apenas valor, nome, etc.)
-                // Calcula a diferença de valor para ajustar o capital do MESMO usuário
                 const valueDifference = newDepositValue - oldDepositValue;
                 if (valueDifference !== 0) {
                     oldRecipientUser.capital = (oldRecipientUser.capital || 0) + valueDifference;
                     await updateResource('users', oldRecipientUser.id, { capital: oldRecipientUser.capital });
                     showCustomAlert(`Capital de ${oldRecipientUser.name} ajustado em R$ ${valueDifference.toFixed(2)}.`);
                 }
-                // Atualiza o depósito
                 updatedDeposit = await updateResource('deposits', depositId, updatedFields);
-                showCustomAlert(`Depósito de ${updatedDeposit.name || updatedDeposit.email} atualizado com sucesso!`);
+                showCustomAlert(`Depósito de ${oldRecipientUser.name} atualizado com sucesso!`);
             }
 
-            await loadAndCacheAllUsers(); // Recarrega o cache de usuários
-            await loadAndCacheAllDeposits(); // Recarrega o cache de depósitos
-            await renderDepositsSection(); // Re-renderiza a seção de depósitos
-            // Opcional: se a seção de usuários estiver visível, re-renderize-a também
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+            await renderDepositsSection();
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
@@ -186,40 +203,187 @@ async function handleEditDeposit(deposit) {
 }
 
 async function handleDeleteDeposit(deposit) {
-    if (confirm(`Tem certeza que deseja deletar o depósito de ${deposit.name || deposit.email}?`)) {
+    if (confirm(`Tem certeza que deseja deletar o depósito de ${findUserById(deposit.userId)?.name || 'usuário desconhecido'}?`)) {
         try {
-            // Encontrar o usuário recebedor antes de deletar o depósito
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
+
             const recipientUser = findUserById(deposit.userId);
             if (!recipientUser) {
-                showCustomAlert('Erro: Usuário recebedor do depósito não encontrado.');
-                return;
+                showCustomAlert('Erro: Usuário recebedor do depósito não encontrado no cache.');
+                console.warn(`Usuário com ID ${deposit.userId} não encontrado, mas depósito será deletado.`);
             }
 
-            // Diminuir o capital do usuário
             const depositValue = deposit.value || 0;
-            recipientUser.capital = (recipientUser.capital || 0) - depositValue;
-            await updateResource('users', recipientUser.id, { capital: recipientUser.capital });
-            showCustomAlert(`Capital de ${recipientUser.name} diminuído em R$ ${depositValue.toFixed(2)}.`);
+            if (recipientUser) {
+                recipientUser.capital = (recipientUser.capital || 0) - depositValue;
+                await updateResource('users', recipientUser.id, { capital: recipientUser.capital });
+                showCustomAlert(`Capital de ${recipientUser.name} diminuído em R$ ${depositValue.toFixed(2)}.`);
+            }
 
-            // Deletar o depósito
             await deleteResource('deposits', deposit.id);
-            showCustomAlert(`Depósito de ${deposit.name || deposit.email} deletado com sucesso!`);
+            showCustomAlert(`Depósito de ${findUserById(deposit.userId)?.name || 'usuário desconhecido'} deletado com sucesso!`);
 
-            await loadAndCacheAllUsers(); // Recarrega o cache de usuários
-            await loadAndCacheAllDeposits(); // Recarrega o cache de depósitos
-
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
+            await loadAndCacheAllTransfers();
             const depositCardElement = document.querySelector(`.deposit-card[data-deposit-id="${deposit.id}"]`);
             if (depositCardElement) {
                 depositCardElement.remove();
             }
-            // Opcional: se a seção de usuários estiver visível, re-renderize-a também
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
-
         } catch (error) {
             showCustomAlert(`Erro ao deletar depósito. Verifique o console.`);
             console.error('Erro ao deletar depósito:', error);
+        }
+    }
+}
+
+
+// =========================================================================
+// LÓGICA DE MANIPULAÇÃO DE AÇÕES (Editar e Deletar) ----- TRANSFERÊNCIAS
+// =========================================================================
+
+async function handleEditTransfer(transfer) {
+    await loadAndCacheAllUsers();
+    await loadAndCacheAllTransfers();
+
+    const senderUser = findUserById(transfer.senderId);
+    const recipientUser = findUserById(transfer.recipientId);
+
+    if (!senderUser || !recipientUser) {
+        showCustomAlert('Erro: Remetente ou destinatário da transferência não encontrado no cache. Não é possível editar.');
+        return;
+    }
+
+    const transferForForm = {
+        ...transfer,
+        emailSender: senderUser.email,
+        senderName: senderUser.name,
+        emailRecipient: recipientUser.email,
+        recipientName: recipientUser.name,
+    };
+
+    setupTransferEditForm(transferForForm, async (transferId, updatedFields, originalTransfer) => {
+        try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllTransfers();
+
+            if (Object.keys(updatedFields).length === 0) {
+                showCustomAlert('Nenhuma alteração foi feita.');
+                return;
+            }
+
+            const oldSenderUser = findUserById(originalTransfer.senderId);
+            const oldRecipientUser = findUserById(originalTransfer.recipientId);
+
+            if (!oldSenderUser || !oldRecipientUser) {
+                showCustomAlert('Erro: Usuário(s) original(is) da transferência não encontrado(s).');
+                return;
+            }
+
+            const oldTransferValue = originalTransfer.value;
+            const newTransferValue = updatedFields.value !== undefined ? updatedFields.value : oldTransferValue;
+
+            let currentSenderUser = oldSenderUser;
+            let currentRecipientUser = oldRecipientUser;
+
+            // Se o remetente ou destinatário forem alterados na edição,
+            // ou se o valor da transferência for alterado, o capital precisa ser ajustado.
+            const senderIdChanged = updatedFields.senderId && updatedFields.senderId !== originalTransfer.senderId;
+            const recipientIdChanged = updatedFields.recipientId && updatedFields.recipientId !== originalTransfer.recipientId;
+            const valueChanged = newTransferValue !== oldTransferValue;
+
+            // Lógica para estornar o valor do remetente original e destinatário original
+            if (senderIdChanged || valueChanged) {
+                // Remove o valor da transferência original do remetente original
+                oldSenderUser.capital = (oldSenderUser.capital || 0) + oldTransferValue;
+                await updateResource('users', oldSenderUser.id, { capital: oldSenderUser.capital });
+            }
+            if (recipientIdChanged || valueChanged) {
+                // Estorna o valor da transferência original para o destinatário original
+                oldRecipientUser.capital = (oldRecipientUser.capital || 0) - oldTransferValue;
+                await updateResource('users', oldRecipientUser.id, { capital: oldRecipientUser.capital });
+            }
+
+
+            // Agora, aplica os novos valores de capital com base na nova transferência
+            if (senderIdChanged) {
+                currentSenderUser = findUserById(updatedFields.senderId);
+                if (!currentSenderUser) { showCustomAlert('Erro: Novo remetente não encontrado.'); return; }
+            }
+            if (recipientIdChanged) {
+                currentRecipientUser = findUserById(updatedFields.recipientId);
+                if (!currentRecipientUser) { showCustomAlert('Erro: Novo destinatário não encontrado.'); return; }
+            }
+            
+            // Aplica o novo valor ao remetente atual
+            currentSenderUser.capital = (currentSenderUser.capital || 0) - newTransferValue;
+            await updateResource('users', currentSenderUser.id, { capital: currentSenderUser.capital });
+
+            // Aplica o novo valor ao destinatário atual
+            currentRecipientUser.capital = (currentRecipientUser.capital || 0) + newTransferValue;
+            await updateResource('users', currentRecipientUser.id, { capital: currentRecipientUser.capital });
+            
+            await updateResource('transfers', transferId, updatedFields);
+            showCustomAlert('Transferência atualizada com sucesso!');
+
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllTransfers();
+            await renderTransfersSection();
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
+                await renderUsersSection();
+            }
+        } catch (error) {
+            showCustomAlert(`Erro ao atualizar transferência: ${error.message}`);
+            console.error('Erro ao atualizar transferência:', error);
+        }
+    });
+}
+
+async function handleDeleteTransfer(transfer) {
+    if (confirm(`Tem certeza que deseja deletar a transferência de R$ ${transfer.value.toFixed(2)}? O capital será estornado.`)) {
+        try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllTransfers();
+
+            const senderUser = findUserById(transfer.senderId);
+            const recipientUser = findUserById(transfer.recipientId);
+
+            if (!senderUser || !recipientUser) {
+                showCustomAlert('Erro: Remetente ou destinatário da transferência não encontrado no cache. Estorno de capital impossível.');
+                return;
+            }
+
+            const transferValue = transfer.value || 0;
+
+            senderUser.capital = (senderUser.capital || 0) + transferValue;
+            await updateResource('users', senderUser.id, { capital: senderUser.capital });
+            showCustomAlert(`Capital de ${senderUser.name} estornado em R$ ${transferValue.toFixed(2)}.`);
+
+            recipientUser.capital = (recipientUser.capital || 0) - transferValue;
+            await updateResource('users', recipientUser.id, { capital: recipientUser.capital });
+            showCustomAlert(`Capital de ${recipientUser.name} diminuído em R$ ${transferValue.toFixed(2)}.`);
+
+            await deleteResource('transfers', transfer.id);
+            showCustomAlert('Transferência deletada com sucesso!');
+
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllTransfers();
+
+            const transferCardElement = document.querySelector(`.transfer-card[data-transfer-id="${transfer.id}"]`);
+            if (transferCardElement) {
+                transferCardElement.remove();
+            }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
+                await renderUsersSection();
+            }
+        } catch (error) {
+            showCustomAlert(`Erro ao deletar transferência. Verifique o console.`);
+            console.error('Erro ao deletar transferência:', error);
         }
     }
 }
@@ -246,8 +410,7 @@ async function renderUsersSection() {
     const usersGridContainer = createDiv('users-grid-container', 'animated-element');
 
     try {
-        // Usa o cache atualizado
-        const users = allUsersCache; // Já carregado/atualizado
+        const users = allUsersCache;
         if (users.length === 0) {
             const noUsersMessage = createP('Nenhum usuário cadastrado ainda.', 'no-users-message', 'animated-element');
             usersGridContainer.append(noUsersMessage);
@@ -281,7 +444,6 @@ async function renderUsersSection() {
     });
 }
 
-// Função para renderizar a seção de depósitos
 async function renderDepositsSection() {
     let transactionsContentWrapper = trasactions.querySelector('#transactionsContentWrapper');
     if (!transactionsContentWrapper) {
@@ -300,21 +462,18 @@ async function renderDepositsSection() {
     const depositsGridContainer = createDiv('deposits-grid-container', 'animated-element');
 
     try {
-        // Usa o cache atualizado
-        const deposits = allDepositsCache; // Já carregado/atualizado
+        const deposits = allDepositsCache;
         if (deposits.length === 0) {
             const noDepositsMessage = createP('Nenhum depósito realizado ainda.', 'no-deposit-message', 'animated-element');
             depositsGridContainer.append(noDepositsMessage);
         } else {
             deposits.forEach(deposit => {
-                const user = findUserById(deposit.userId); // Encontra o usuário associado ao depósito
+                const user = findUserById(deposit.userId);
                 if (user) {
-                    // Passa o depósito e o usuário associado para criar o card
                     const depositCard = createDepositCardElement(deposit, user, handleEditDeposit, handleDeleteDeposit);
                     depositsGridContainer.append(depositCard);
                 } else {
-                    console.warn(`Usuário com ID ${deposit.userId} não encontrado para o depósito ${deposit.id}.`);
-                    // Opcional: exibir um card de depósito com mensagem de erro ou ignorá-lo
+                    console.warn(`Um ou ambos os usuários (para depósito: ${deposit.id}) não foram encontrados.`);
                 }
             });
         }
@@ -342,6 +501,65 @@ async function renderDepositsSection() {
     });
 }
 
+async function renderTransfersSection() {
+    let transactionsContentWrapper = trasactions.querySelector('#transactionsContentWrapper');
+    if (!transactionsContentWrapper) {
+        transactionsContentWrapper = document.createElement('section');
+        transactionsContentWrapper.id = 'transactionsContentWrapper';
+        transactionsContentWrapper.classList.add('transactions-content-section');
+        trasactions.append(transactionsContentWrapper);
+    }
+
+    transactionsContentWrapper.innerHTML = '';
+    transactionsContentWrapper.classList.remove('transactions-section-active');
+
+    const subtitle = createH(2, 'Gerenciamento de Transferências', 'subtitle-transfers-transactions', 'animated-element');
+    transactionsContentWrapper.append(subtitle);
+
+    const transfersGridContainer = createDiv('transfers-grid-container', 'animated-element');
+
+    try {
+        const transfers = allTransfersCache;
+        if (transfers.length === 0) {
+            const noTransfersMessage = createP('Nenhuma transferência realizada ainda.', 'no-transfer-message', 'animated-element');
+            transfersGridContainer.append(noTransfersMessage);
+        } else {
+            transfers.forEach(transfer => {
+                const senderUser = findUserById(transfer.senderId);
+                const recipientUser = findUserById(transfer.recipientId);
+
+                if (senderUser && recipientUser) {
+                    const transferCard = createTransferCardElement(transfer, senderUser, recipientUser, handleEditTransfer, handleDeleteTransfer);
+                    transfersGridContainer.append(transferCard);
+                } else {
+                    console.warn(`Um ou ambos os usuários (remetente: ${transfer.senderId}, destinatário: ${transfer.recipientId}) para a transferência ${transfer.id} não foram encontrados.`);
+                }
+            });
+        }
+    } catch (error) {
+        showCustomAlert('Erro ao carregar transferências. Verifique o console.');
+        console.error('Erro ao carregar transferências:', error);
+        const errorMessage = createP('Não foi possível carregar as transferências. Tente novamente mais tarde.', 'error-message', 'animated-element');
+        transfersGridContainer.append(errorMessage);
+    }
+
+    transactionsContentWrapper.append(transfersGridContainer);
+
+    const buttonsContainer = createDiv('btns-transactions-group', 'animated-element');
+    const collectSectionButton = createButton('Recolher Seção', 'collectSectionTransactions', 'animated-element');
+    buttonsContainer.append(collectSectionButton);
+    transactionsContentWrapper.append(buttonsContainer);
+
+    requestAnimationFrame(() => {
+        transactionsContentWrapper.classList.add('transactions-section-active');
+    });
+
+    collectSectionButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideTransactionSection(transactionsContentWrapper);
+    });
+}
+
 
 // =========================================================================
 // INICIALIZAÇÃO: CARREGA OS DADOS INICIAIS AO INICIAR A APLICAÇÃO
@@ -349,7 +567,7 @@ async function renderDepositsSection() {
 (async () => {
     await loadAndCacheAllUsers();
     await loadAndCacheAllDeposits();
-    // Você pode chamar outras funções de renderização inicial aqui se necessário
+    await loadAndCacheAllTransfers();
 })();
 
 
@@ -370,36 +588,33 @@ export const display = displayTransactions.addEventListener('click', async (ev) 
 
     const currentSelection = boxSelection.value;
 
-    // Lógica de toggle: se a mesma opção for clicada novamente, esconde
     if (transactionsContentWrapper.classList.contains('transactions-section-active') &&
         transactionsContentWrapper.dataset.activeSection === currentSelection) {
         hideTransactionSection(transactionsContentWrapper);
-        transactionsContentWrapper.dataset.activeSection = ''; // Limpa a seção ativa
+        transactionsContentWrapper.dataset.activeSection = '';
         return;
     }
 
-    // Se OUTRA seção estava ativa, esconde ela primeiro antes de carregar a nova
     if (transactionsContentWrapper.classList.contains('transactions-section-active')) {
         await hideTransactionSection(transactionsContentWrapper);
-        // Pequeno atraso para a animação de esconder terminar, se necessário
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 
-    transactionsContentWrapper.dataset.activeSection = currentSelection; // Guarda qual seção está ativa
+    transactionsContentWrapper.dataset.activeSection = currentSelection;
 
-    // Garante que o cache esteja atualizado antes de renderizar
     await loadAndCacheAllUsers();
     await loadAndCacheAllDeposits();
+    await loadAndCacheAllTransfers();
 
     if (currentSelection === 'users') {
         await renderUsersSection();
     } else if (currentSelection === 'deposits') {
         await renderDepositsSection();
+    } else if (currentSelection === 'transfers') {
+        await renderTransfersSection();
     }
-    // ADICIONE AQUI AS CONDIÇÕES PARA 'transfers' e 'loans'
     else {
         showCustomAlert('Por favor, selecione uma opção válida para exibir.');
-        // Não esconde automaticamente, apenas se estiver visível
         if (transactionsContentWrapper.classList.contains('transactions-section-active')) {
             hideTransactionSection(transactionsContentWrapper);
         }

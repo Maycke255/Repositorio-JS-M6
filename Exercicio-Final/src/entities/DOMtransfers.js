@@ -3,7 +3,7 @@ import { Transfer } from "../controller/Transfer.js";
 import { showCustomAlert } from "../app.js";
 
 // Regex para validação de email
-export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
 
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
 async function findUserByEmail(email) {

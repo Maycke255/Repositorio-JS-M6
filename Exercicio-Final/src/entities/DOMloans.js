@@ -1,6 +1,5 @@
 import { displayLoansArea, loansSct } from "../entities/elements.js";
 import { showCustomAlert } from "../app.js";
-import { emailRegex } from "./DOMtransfers.js";
 import { Loan } from "../controller/Loan.js";
 
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
@@ -330,6 +329,8 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
         const feePercentage = parseFloat(feeLoanInput.value); // Taxa em porcentagem
 
         let firstErrorInput = null; // <<-- CORRIGIDO: Declaração da variável
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
 
         if (!dateValue) { showCustomAlert('Por favor, selecione a data do empréstimo.'); firstErrorInput = dateLoanInput; }
         else if (!nameValue) { showCustomAlert('Por favor, preencha o nome do usuário que fará o empréstimo.'); firstErrorInput = nameLoanInput; }
