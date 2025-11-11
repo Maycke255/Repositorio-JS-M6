@@ -5,7 +5,7 @@ import { containerInputs,
 
 import { showCustomAlert } from '../../../src/app.js';
 
-import { createDiv, createH, findUserByEmail, closeEditForm } from '../../utils/utils.js';
+import { createDiv, createH, findUserByEmail, closeEditForm, loadAndCacheAllUsers } from '../../utils/utils.js';
 
 
 export function setupTransferEditForm(transferToEdit, onSaveCallback) {
@@ -71,7 +71,9 @@ export function setupTransferEditForm(transferToEdit, onSaveCallback) {
 
     // Listeners para atualizar os nomes automaticamente
     senderEmailInput.addEventListener('blur', async () => {
+        await loadAndCacheAllUsers(); // <--- ADICIONADO AQUI
         const email = senderEmailInput.value.trim();
+
         if (email) {
             const user = findUserByEmail(email);
             if (user) { senderNameInput.value = user.name; } else { senderNameInput.value = ''; showCustomAlert(`E-mail do remetente "${email}" não cadastrado.`); }
@@ -79,7 +81,9 @@ export function setupTransferEditForm(transferToEdit, onSaveCallback) {
     });
 
     recipientEmailInput.addEventListener('blur', async () => {
+        await loadAndCacheAllUsers(); // <--- ADICIONADO AQUI
         const email = recipientEmailInput.value.trim();
+
         if (email) {
             const user = findUserByEmail(email);
             if (user) { recipientNameInput.value = user.name; } else { recipientNameInput.value = ''; showCustomAlert(`E-mail do destinatário "${email}" não cadastrado.`); }
@@ -129,12 +133,15 @@ export function setupTransferEditForm(transferToEdit, onSaveCallback) {
         const newSenderEmail = senderEmailInput.value.trim();
         const newRecipientEmail = recipientEmailInput.value.trim();
         const newValue = parseFloat(valueTransferInput.value);
+        
 
         if (!newSenderEmail) { showCustomAlert('O e-mail do remetente não pode estar vazio.'); return; }
+        await loadAndCacheAllUsers(); // <--- ADICIONADO AQUI (antes de chamar findUserByEmail)
         const senderFound = findUserByEmail(newSenderEmail);
         if (!senderFound) { showCustomAlert(`O e-mail do remetente "${newSenderEmail}" não está cadastrado.`); return; }
 
         if (!newRecipientEmail) { showCustomAlert('O e-mail do destinatário não pode estar vazio.'); return; }
+        await loadAndCacheAllUsers(); // <--- ADICIONADO AQUI (antes de chamar findUserByEmail)
         const recipientFound = findUserByEmail(newRecipientEmail);
         if (!recipientFound) { showCustomAlert(`O e-mail do destinatário "${newRecipientEmail}" não está cadastrado.`); return; }
 
@@ -143,10 +150,10 @@ export function setupTransferEditForm(transferToEdit, onSaveCallback) {
         if (isNaN(newValue) || newValue < 0.01) { showCustomAlert('Por favor, insira um valor de transferência válido (maior ou igual a 0.01).'); return; }
 
         if (senderFound.id !== transferToEdit.senderId) {
-            updatedData.senderId = senderFound.id;
+            updatedData.senderId = senderFound.id; // <--- MODIFICADO
         }
         if (recipientFound.id !== transferToEdit.recipientId) {
-            updatedData.recipientId = recipientFound.id;
+            updatedData.recipientId = recipientFound.id; // <--- MODIFICADO
         }
         if (newValue !== transferToEdit.value) {
             updatedData.value = newValue;
@@ -158,7 +165,7 @@ export function setupTransferEditForm(transferToEdit, onSaveCallback) {
             return;
         }
 
-        await onSaveCallback(transferToEdit.id, updatedData, transferToEdit);
+        await onSaveCallback(transferToEdit.id, updatedData, transferToEdit); // <--- ADICIONADO transferToEdit
         closeEditForm();
     };
 

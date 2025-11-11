@@ -1,0 +1,132 @@
+/* AQUI SERA ONDE VAI SER A ESTILIZAÇÃO PRINCIPAL DA PAGINA, O BODY E ELEMENTOS PRINCIPAIS E TEMAS */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: var(--color-primary);
+    color: var(--color-tertiary);
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--color-secoundary);
+    border-radius: 2rem;
+    margin: 1rem;
+    box-shadow: 0 0 20px rgba(114, 82, 207, 0.5), 0 0 40px rgba(114, 82, 207, 0.2);
+}
+
+.header-group {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+}
+
+header h1 {
+    text-shadow: var(--shadow-light-strong);
+}
+
+#heroSection {
+    justify-items: center;
+    text-shadow: var(--shadow-light);
+}
+
+#bankValue {
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    padding: .5rem;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.operations-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.operations-area {
+    justify-items: center;
+}
+
+.trasactions-group {
+    margin: 2rem;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+}
+
+.operations-area {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%;
+}
+
+.operations-area  p {
+    margin: 2rem;
+    text-align: center;
+}
+
+#trasactions, #userssSct, #transfersSct, #depositSct, #loansSct {
+    margin: 1rem;
+}
+
+/* ========= MEDIAS ========= */
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-primary: #e5e7eb;
+        --color-tertiary: #151420;
+    }
+
+    header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: var(--color-secoundary);
+        border-radius: 2rem;
+        margin: 1rem;
+        color: var(--color-primary);
+        box-shadow: 0 0 20px rgba(114, 82, 207, 0.5), 0 0 40px rgba(114, 82, 207, 0.2);
+    }
+
+    .line {
+        border: solid 1px #bab4cc;
+    }
+
+    .select-selected {
+        color: var(--color-tertiary);
+        box-shadow: var(--shadow-dark-strong);
+    }
+
+    #displayTransactions, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
+        color: var(--color-tertiary);
+        box-shadow: var(--shadow-dark-strong);
+    }
+
+    .footer-content > img {
+        filter: drop-shadow(var(--shadow-dark-strong));
+    }
+
+    .footer-content p {
+        color: var(--color-tertiary);
+    }
+
+    .footer-content .social-links img {
+        padding: 1rem;
+        filter: drop-shadow(var(--shadow-dark-strong));
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,64 @@
+/* ESSE ARQUIVO VAI ABRIGAR TODOS OS ELEMENTOS RAIZ PARA USAR EM TODO O PROJETO */
+
+:root {
+    --font-primary: "Poppins", sans-serif;
+    --font-secondary: "Open Sans", sans-serif;
+    --color-primary: #151420;
+    --color-secoundary: #523b94;
+    --color-tertiary: #e5e7eb;
+    --color-error:#e92b34;
+    --color-quaternary: linear-gradient(135deg,#0ea5e9 0%, #22d3ee 50%, #a78bfa 100%);
+    --color-quintennial: #141d2e;
+    --color-edit-btn: linear-gradient(135deg,#15e90e 0%, #22eebb 50%, #8ba5fa 100%);
+    --color-delete-btn: linear-gradient(135deg,#f81313 0%, #e0271a 50%, #fd6e0f 100%);;
+    --shadow-dark: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade */
+    --shadow-dark-strong: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Preto com 60% de opacidade */
+    --shadow-purple: 1px 1px 2px rgba(114, 82, 207, 0.5); /* Roxo com 50% de opacidade */
+    --shadow-purple-strong: 2px 2px 4px rgba(114, 82, 207, 0.7); /* Roxo com 70% de opacidade */
+    --shadow-light: 0 1px 5px rgba(255, 255, 255, 0.603); 
+    --shadow-light-strong: 0 1px 6px rgba(255, 255, 255, 0.801);
+}
+
+/* ========== FUNCIONALIDADES EXTRAS DA PAGINA ========== */
+
+/* FOCUS QUANDO INPUT E PREENCHIDO COM DADOS DO LOCAL STORAGE Para navegadores baseados em WebKit (Chrome, Safari, Edge, etc.) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    /* O truque principal: usa um box-shadow interno que se sobrepõe ao fundo do navegador.
+       Certifique-se de que a cor do box-shadow seja a mesma do background que você deseja. */
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-quintennial) inset !important; /* Cor de fundo do seu input */
+    
+    /* Define a cor do texto para que não seja a padrão do navegador no autofill */
+    -webkit-text-fill-color: var(--color-tertiary) !important; /* Cor do texto do seu input */
+
+    /* Uma transição longa pode "enganar" o navegador para não mostrar o fundo branco */
+    transition: background-color 5000s ease-in-out 0s;
+
+    /* Opcional: Se o navegador ainda tentar aplicar um background, isso ajuda. */
+    background-color: var(--color-quintennial) !important; /* Cor de fundo do seu input */
+
+    /* Garante que outras propriedades como borda permaneçam as suas */
+    border-color: #e5e7ebb9 !important; /* Cor da borda do seu input */
+}
+
+/* FOCUS PARA RETIRAR O OLHINHO DA SENHA */
+/* Para navegadores baseados em Webkit (Chrome, Edge, Safari, Opera) */
+input[type="password"]::-webkit-password-toggle-button {
+    display: none;
+    -webkit-appearance: none; /* Garante que não haja nenhum estilo padrão */
+}
+
+/* Para o Internet Explorer/Edge antigo (embora Edge agora use Webkit) */
+input[type="password"]::-ms-reveal {
+    display: none;
+    -ms-appearance: none; /* Garante que não haja nenhum estilo padrão */
+}
+
+/* Por garantia, para remover qualquer estilo padrão que o navegador possa aplicar ao input */
+input[type="password"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}

@@ -1,19 +1,19 @@
 // controller/Transfer.js
 
 export class Transfer {
-    constructor(senderId, recipientId, value) {
+    constructor(dateString, senderId, recipientId, value) {
+        this.date = dateString;
         this.senderId = senderId;
         this.recipientId = recipientId;
         this.value = value;
-        this.date = new Date().toISOString().split('T')[0];
     }
 
     async makeTransfer() {
         const transferData = {
+            date: this.date,
             senderId: this.senderId,
             recipientId: this.recipientId,
-            value: this.value,
-            date: this.date
+            value: this.value
         }
 
         try {

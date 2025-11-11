@@ -1,0 +1,33 @@
+/* ======================== ESTILO DO OLHO DA SENHA ======================== */
+.password-toggle-icon {
+    position: absolute;
+    right: 1.5rem; /* Distância da borda direita */
+    top: 50%; /* Centraliza verticalmente no meio do contêiner */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px; /* <--- Defina a largura da sua imagem aqui */
+    height: 24px; /* <--- E a altura */
+    user-select: none;
+    z-index: 10;
+    filter: drop-shadow(0 2px 10px rgb(255, 255, 255));
+}
+
+/* SEU CSS para o ícone do "olho" */
+.password-toggle-icon {
+    position: absolute;
+    right: 0.75rem; /* <--- AJUSTADO! De 1.5rem para 0.75rem. Isso o move mais para a direita. */
+    top: 50%; /* Agora 50% da altura do .input-and-icon-wrapper (que é a altura do input) */
+    transform: translateY(-50%); /* Ajuste fino para o centro exato */
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    user-select: none;
+    z-index: 10;
+}
+
+/* ========= CLASSE PARA MENSAGEM DE ERRO ========= */
+.error {
+    background-color: var(--color-error) !important;
+    color: var(--color-tertiary) !important;
+    font-style: italic !important;
+}

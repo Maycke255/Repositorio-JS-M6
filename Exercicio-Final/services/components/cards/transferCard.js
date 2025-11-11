@@ -8,9 +8,9 @@ export function createTransferCardElement(transfer, senderUser, recipientUser, o
 
     transferCard.append(createH(3, 'Transferência', 'transfer-card-title'));
     
-    transferCard.append(createP(`De: ${senderUser.name || 'Remetente Desconhecido'} (${senderUser.email || 'N/A'})`, 'transfer-card-detail'));
-    transferCard.append(createP(`Para: ${recipientUser.name || 'Destinatário Desconhecido'} (${recipientUser.email || 'N/A'})`, 'transfer-card-detail'));
-    transferCard.append(createP(`Valor: R\\\$ ${transfer.value.toFixed(2)}`, 'transfer-card-detail'));
+    transferCard.append(createP(`De: ${senderUser?.name || 'Remetente Desconhecido'} (${senderUser?.email || 'N/A'})`, 'transfer-card-detail'));
+    transferCard.append(createP(`Para: ${recipientUser?.name || 'Destinatário Desconhecido'} (${recipientUser?.email || 'N/A'})`, 'transfer-card-detail'));
+    transferCard.append(createP(`Valor: R$ ${transfer.value.toFixed(2)}`, 'transfer-card-detail'));
     transferCard.append(createP(`Data: ${transfer.date}`, 'transfer-card-detail'));
 
     const transferActions = createDiv('transfer-actions');

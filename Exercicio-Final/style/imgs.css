@@ -1,0 +1,10 @@
+/* AQUI FICARA TUDO RELACIONADO A IMAGENS */
+
+header img {
+    width: 5vw;
+    min-width: 60px;
+    max-width: 60px;
+    height: auto;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.60));
+}

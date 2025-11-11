@@ -1,0 +1,54 @@
+/* AQUI FICARA O RODAPÉ DA PAGINA */
+/* Quando a seção está recolhendo, o transition-delay se aplica de forma inversa.
+   O último a aparecer (com maior delay) será o primeiro a começar a recolher,
+   mas o efeito visual de "cascata para cima" será natural devido ao translateY e max-height. */
+
+.line {
+    width: 80%;
+    border: solid 1px #230a69;
+    border-radius: .5rem;
+}
+
+.footer-content > img {
+    width: 5vw;
+    min-width: 40px;
+    max-width: 40px;
+    height: auto;
+    margin: 3rem 0 1rem 0;
+    filter: drop-shadow(var(--shadow-light));
+}
+
+.footer-content p {
+    color: #e5e7ebc9;
+    font-size: 13px;
+}
+
+.footer-content .social-links img {
+    padding: 1rem;
+    filter: drop-shadow(var(--shadow-light));
+    text-decoration: none;
+}
+
+.footer-content .social-links img:hover {
+    transform: scale(1.07);
+}
+
+.footer-content .social-links img:active {
+    transform: scale(0.99);
+}
+
+.footer-content .social-links a {
+    text-decoration: none;
+}
+
+.social-links {
+    margin: 1rem;
+}
+
+.footer-content {
+    display:  flex;
+    flex-direction: column;
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+}

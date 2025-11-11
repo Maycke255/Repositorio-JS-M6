@@ -5,22 +5,23 @@
       "name": "Kaio",
       "email": "reydsonk@gmail.com",
       "password": "123456",
-      "capital": 17200
+      "capital": 17450
     },
     {
       "id": "3353",
       "name": "Maycke",
       "email": "aaa111@gmail.com",
       "password": "may123456",
-      "capital": 950
+      "capital": 700
     }
   ],
   "transfers": [
     {
-      "id": "d7b0",
-      "date": "2025-11-10",
-      "senderId": "3353",      
-      "recipientId": "b771"
+      "id": "aff5",
+      "date": "2025-11-11",
+      "senderId": "3353",
+      "recipientId": "b771",
+      "value": 300
     }
   ],
   "deposits": [

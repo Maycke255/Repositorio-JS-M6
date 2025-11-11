@@ -1,0 +1,217 @@
+/* AQUI FICARÃO TODOS OS BUTTOS DAS SECTIONS E DE TODA A PAGINA */
+
+/*========= Estilo proprio da caixa de seleção =========*/
+#boxSelection {
+    display: none;
+}
+.custom-select-wrapper {
+    position: relative;
+    display: block; /* Ou block, dependendo do layout */
+    margin: 2rem; /* Mantém o margin original */
+    margin-top: 0;
+    width: 100%; /* Ajuste conforme necessário para o tamanho ideal */
+    max-width: 250px;
+    overflow: visible; /* IMPORTE: Garante que o dropdown não seja cortado por ele mesmo */
+}
+
+/* Estilo para a caixa de seleção visível (o que você clica) */
+.select-selected {
+    /* Estilos do seu original #boxSelection */
+    border: 2.5px solid var(--color-tertiary); /* Usando o roxo para a borda */
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    padding: 1rem 2rem;
+    text-align: center;
+    color: var(--color-primary); /* Cor do texto na caixa principal */
+    cursor: pointer;
+    user-select: none; /* Previne seleção de texto */
+    box-shadow: var(--shadow-light);
+
+    /* Adiciona a seta para baixo */
+    position: relative;
+    padding-right: 3rem; /* Espaço para a seta */
+    white-space: nowrap; /* Garante que o texto não quebre nesta linha */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona '...' se o texto for muito longo */
+    transition: background 0.3s ease, transform 0.3s ease; /* Adicionando transição */
+}
+
+/* Estilo da seta */
+.select-selected::after {
+    position: absolute;
+    content: "";
+    top: 50%;
+    right: 1.2rem; /* Posição da seta */
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: var(--color-tertiary) transparent transparent transparent; /* Cor da seta */
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+/* Gira a seta quando o dropdown está aberto */
+.select-selected.select-arrow-active::after {
+    border-color: transparent transparent var(--color-tertiary) transparent;
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Estilo para a lista de opções do dropdown */
+.select-items {
+    position: absolute;
+    font-family: var(--font-secondary);
+    background-color: var(--color-primary); /* Fundo escuro das opções */
+    border: 2.5px solid var(--color-tertiary); /* Borda roxa das opções */
+    border-radius: .75rem; /* Arredonda as bordas da caixa do dropdown */
+    top: calc(100% + 0.5rem); /* Posiciona abaixo do select principal com espaçamento */
+    left: 0;
+    right: 0;
+    z-index: 99;
+    overflow: hidden; /* Garante que as bordas arredondadas funcionem */
+    box-shadow: var(--shadow-light); /* Sombra para o dropdown */
+    margin-top: 0.5rem; /* Pequeno espaçamento entre o select e o dropdown */
+    max-height: 200px; /* Limita a altura e adiciona scroll se necessário */
+    overflow-y: auto; /* Adiciona scroll vertical se as opções excederem max-height */
+}
+
+/* Esconde o dropdown por padrão */
+.select-hide {
+    display: none;
+}
+
+/* Estilo para cada opção individual dentro do dropdown */
+.select-items div {
+    color: var(--color-tertiary); /* Cor do texto claro para as opções */
+    padding: 1rem 2rem; /* Mantém o padding original para as opções */
+    cursor: pointer;
+    font-size: .80rem; /* Mantém o font-size original */
+    letter-spacing: 1.5px; /* Mantém o letter-spacing original */
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease; /* Transição para o hover */
+}
+
+/* Estilo da opção ao passar o mouse ou quando já selecionada */
+.select-items div:hover,
+.select-items .same-as-selected {
+    background: var(--color-quaternary); /* Usa o gradiente ou uma cor de destaque no hover/selecionado */
+    color: var(--color-primary); /* Texto escuro para contraste no hover, se o fundo for claro */
+}
+
+/* NOVO: Estilo para o wrapper do input e do ícone */
+.input-and-icon-wrapper {
+    position: relative; /* ESSENCIAL para o posicionamento do ícone */
+    width: 100%; /* Garante que o wrapper ocupe a largura total disponível */
+}
+
+/* ======================================================== */
+
+#displayTransactions, #displayUsersArea, #displayTransfersArea, #displayDepositArea, #displayLoansArea {
+    margin: 2rem auto;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2.8rem;
+    width: 100%;
+    max-height: 3.5rem;
+    max-width: 17rem;
+    text-align: center;
+    white-space: wrap;
+    word-break: normal;
+    line-height: 1.2;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+}
+
+/* Efeito após passar por cima */
+.select-selected:hover, #displayUsersArea:hover, #displayTransactions:hover, #displayTransfersArea:hover, 
+#displayDepositArea:hover, #displayLoansArea:hover {
+    background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
+    transform: scale(1.02);
+}
+
+/* Muda de escala quando clicavel */
+.select-selected:active, #displayUsersArea:active, #displayTransactions:active, #displayTransfersArea:active, 
+#displayDepositArea:active, #displayLoansArea:active {
+    transform: scale(0.99);
+}
+
+.btns-user-group, 
+.btns-transfer-group, .group-date-btns,
+.btns-deposit-group,
+.btns-loans-group {
+    display: flex;
+    flex-direction: column;
+}
+
+#createUser, 
+#dateTransfer, #btnTransferToday, #executeTransfer,
+#executeDeposit,
+#setLoan, #dateLoan, #btnLoanToday,
+#customAEditOkButton,
+#collectSection, #collectSectionTransactions {
+    margin: 2rem auto;
+    border: 2.5px solid var(--color-tertiary);
+    background: var(--color-quaternary);
+    border-radius: .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2.8rem;
+    width: 100%;
+    max-height: 3rem;
+    max-width: 14rem;
+    text-align: center;
+    white-space: nowrap;
+    word-break: break-word;
+    line-height: 1.2;
+    color: var(--color-primary);
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--shadow-light);
+}
+
+/* ========================================================== */
+/* >>> ESTA É A ALTERAÇÃO MAIS IMPORTANTE <<< */
+/* Ajuste o padding-right ESPECIFICAMENTE para o input de senha */
+#passwordUser {
+    padding-right: 3rem; /* Aumenta o espaço para o ícone. Isso empurrará o texto para a esquerda. */
+}
+
+/* Efeito após passar por cima */
+#createUser:hover,
+#dateTransfer:hover, #btnTransferToday:hover, #executeTransfer:hover, 
+#executeDeposit:hover,
+#dateLoan:hover, #btnLoanToday:hover, #setLoan:hover, 
+#customAEditOkButton:hover,
+#collectSectionTransactions:hover, #collectSection:hover {
+    background: linear-gradient(135deg,#0e86e9 0%, #10a7ff 50%, #8f49ff 100%);
+    transform: scale(1.02);
+}
+
+/* Muda de escala quando clicavel */
+#createUser:active, 
+#dateTransfer:active, #btnTransferToday:active, #executeTransfer:active, 
+#executeDeposit:active,
+#dateLoan:active, #btnLoanToday:active, #setLoan:active, 
+#customAEditOkButton:active,
+#collectSectionTransactions:active, #collectSection:active {
+    transform: scale(0.99);
+}
