@@ -11,8 +11,25 @@ import { findUserByEmail, hideTransactionSection, loadAndCacheAllUsers, loadAndC
 // ========================= FUNÇÕES AUXILIARES ========================= //
 
 // Renomeado para hideDepositSection para usar a função centralizada
+// Função para esconder e remover a seção de transferência (MANTIDA EXATAMENTE COMO VOCÊ TEM)
 function hideDepositSectionWrapper(wrapperElement) {
-    hideTransactionSection(wrapperElement); // Usa a função de utils.js
+    if (!wrapperElement || !wrapperElement.classList.contains('deposit-section-active')) {
+        return;
+    }
+    wrapperElement.classList.remove('deposit-section-active');
+    const lastAnimatedElement = wrapperElement.querySelector('.btns-deposit-group');
+
+    if (!lastAnimatedElement) {
+        setTimeout(() => { wrapperElement.innerHTML = ''; }, 600);
+        return;
+    }
+
+    lastAnimatedElement.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
+            wrapperElement.innerHTML = '';
+            lastAnimatedElement.removeEventListener('transitionend', handler);
+        }
+    }, { once: true });
 }
 
 

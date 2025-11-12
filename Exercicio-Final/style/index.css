@@ -197,3 +197,38 @@
     display: flex;
     flex-direction: column;
 }
+
+/* Adicione estas regras para os wrappers de conteúdo das seções */
+#loansContentWrapper, #depositContentWrapper {
+    max-width: 500px; /* Ajuste esta largura conforme sua preferência para o mobile/tablet */
+    margin: 0 auto; /* Isso centraliza o bloco na horizontal */
+    padding: 1.5rem; /* Padding interno para afastar o conteúdo das bordas do container */
+    padding-bottom: 0;
+    padding-top: 0;
+    /* Garanta que o overflow seja visível para os custom selects se abrirem */
+    overflow: visible; 
+}
+
+.custom-select-wrapper {
+    position: relative;
+    display: block; /* Ou block, dependendo do layout */
+    /* Remova ou ajuste estas linhas: */
+    /* margin: 2rem; */
+    /* margin-top: 0; */
+    /* max-width: 250px; */
+
+    /* Altere para: */
+    width: 100%; /* Ocupa a largura total do pai (que terá padding de 1rem) */
+    /* Se quiser que o select visualmente seja menor, aplique max-width ao .select-selected e .select-items */
+    /* Por exemplo: max-width: 250px; para alinhar com os outros inputs se eles tiverem max-width interna */
+
+    overflow: visible; /* IMPORTE: Garante que o dropdown não seja cortado por ele mesmo */
+}
+
+/* Se você *ainda* quiser que o campo de seleção *visual* seja mais estreito (mas centralizado), 
+   você pode aplicar um max-width aqui, mas o padding do pai já dará o efeito desejado */
+.select-selected, .select-items {
+    /* Por exemplo, se os inputs tiverem um max-width intrínseco, você pode replicar aqui */
+    /* max-width: 250px; */ /* Descomente e ajuste se necessário, mas geralmente não é preciso */
+    margin: 0 auto; /* Isso vai centralizar o custom select dentro do seu container pai */
+}
