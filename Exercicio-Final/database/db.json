@@ -12,7 +12,7 @@
       "name": "Maycke",
       "email": "aaa111@gmail.com",
       "password": "may123456",
-      "capital": 700
+      "capital": 68500
     }
   ],
   "transfers": [
@@ -33,5 +33,18 @@
       "name": "Kaio"
     }
   ],
-  "loans": []
+  "loans": [
+    {
+      "id": "64e7",
+      "date": "2025-11-13",
+      "userId": "3353",
+      "name": "Maycke",
+      "email": "aaa111@gmail.com",
+      "totalValue": 22200,
+      "installments": 24,
+      "rate": 2,
+      "totalAmountToPay": 22644,
+      "installmentAmount": 1887
+    }
+  ]
 }

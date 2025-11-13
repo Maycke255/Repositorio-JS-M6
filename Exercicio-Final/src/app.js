@@ -20,6 +20,21 @@ refletir o novo valor. */
 
 /* ===== PERSONALIZAÇÃO DO SELECT ===== */
 
+import { loadAndCacheAllUsers, allUsersCache } from '../services/utils/utils.js'; // Importa o cache de usuários
+
+// Referência ao elemento onde o valor total será exibido
+const bankValueElement = document.getElementById('bankValue');
+
+// Função para atualizar o display do valor total do banco
+export async function updateBankTotalDisplay() {
+    await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
+    let totalCapital = 0;
+    allUsersCache.forEach(user => {
+        totalCapital += (user.capital || 0); // Soma o capital de cada usuário, considerando 0 se for undefined
+    });
+    bankValueElement.textContent = `R$ ${totalCapital.toFixed(2)}`;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const customSelectWrapper = document.querySelector(".custom-select-wrapper");
     const selectSelected = customSelectWrapper.querySelector(".select-selected");

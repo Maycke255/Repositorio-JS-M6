@@ -4,15 +4,15 @@
 // IMPORTS
 // =========================================================================
 
-import { showCustomAlert } from "../app.js";
+import { showCustomAlert, updateBankTotalDisplay  } from "../app.js";
 
 import { boxSelection, displayTransactions, trasactions,
          customEditOverlay, customEditInputs, containerInputs } from '../entities/elements.js';
 
 import { hideTransactionSection, createDiv, createP, createH, createButton,
-         loadAndCacheAllUsers, loadAndCacheAllDeposits, loadAndCacheAllTransfers,
-         findUserById, findDepositById, findTransferById, findUserByEmail,
-         allUsersCache, allDepositsCache, allTransfersCache
+         loadAndCacheAllUsers, loadAndCacheAllDeposits, loadAndCacheAllTransfers, loadAndCacheAllLoans, // <--- NOVO
+         findUserById, findDepositById, findTransferById, findLoanById, findUserByEmail, // <--- NOVO
+         allUsersCache, allDepositsCache, allTransfersCache, allLoansCache // <--- NOVO
        } from '../../services/utils/utils.js';
 
 import { fetchData, deleteResource, updateResource } from '../../services/api.js';
@@ -20,10 +20,12 @@ import { fetchData, deleteResource, updateResource } from '../../services/api.js
 import { createUserCardElement } from '../../services/components/cards/userCard.js';
 import { createDepositCardElement } from '../../services/components/cards/depositCard.js';
 import { createTransferCardElement } from '../../services/components/cards/transferCard.js';
+import { createLoanCardElement } from '../../services/components/cards/loansCard.js'; // <--- NOVO
 
 import { setupUserEditForm } from '../../services/components/forms/userEditForm.js';
 import { setupDepositEditForm } from '../../services/components/forms/depositEditForm.js';
 import { setupTransferEditForm } from '../../services/components/forms/transferEditForm.js';
+import { setupLoanEditForm } from '../../services/components/forms/loansEditForm.js'; // <--- NOVO
 
 
 // =========================================================================
@@ -36,6 +38,7 @@ async function handleEditUser(user) {
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             if (Object.keys(updatedFields).length === 0) {
                 showCustomAlert('Nenhuma alteração foi feita.');
@@ -58,28 +61,29 @@ async function handleEditUser(user) {
             showCustomAlert(`Usuário ${updatedUser.name} atualizado com sucesso!`);
 
             if (newEmail !== oldEmailFromCache || newName !== oldNameFromCache) {
+                // Atualiza depósitos (se o email/nome for relevante, embora já usem userId, é bom manter se tiver outras dependências)
                 const depositsToUpdate = allDepositsCache.filter(dep => dep.userId === userId);
                 await Promise.all(depositsToUpdate.map(async (dep) => {
-                    const depositUpdateFields = {};
-                    if (newEmail !== oldEmailFromCache) {
-                        depositUpdateFields.email = newEmail;
-                    }
-                    if (newName !== oldNameFromCache) {
-                        depositUpdateFields.name = newName;
-                    }
+                    const depositUpdateFields = {}; // No nosso modelo atual, deposits só tem userId. Mas se tivesse email/name, seria aqui.
                     if (Object.keys(depositUpdateFields).length > 0) {
                         await updateResource('deposits', dep.id, depositUpdateFields);
                     }
                 }));
-                // Remeti a parte de propagação para transferências para o DELETE de usuário,
-                // pois transferências não armazenam name/email do remetente/destinatário.
-                // A única mudança relevante para transfers aqui seria se o userId mudasse,
-                // o que não faz sentido para a edição de um usuário.
+
+                // ATUALIZADO: Atualiza empréstimos (mesma lógica que depósitos)
+                const loansToUpdate = allLoansCache.filter(loan => loan.userId === userId);
+                await Promise.all(loansToUpdate.map(async (loan) => {
+                    const loanUpdateFields = {}; // No nosso modelo atual, loans só tem userId. Mas se tivesse email/name, seria aqui.
+                    if (Object.keys(loanUpdateFields).length > 0) {
+                        await updateResource('loans', loan.id, loanUpdateFields);
+                    }
+                }));
             }
 
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
             await renderUsersSection();
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'deposits') {
                 await renderDepositsSection();
@@ -87,6 +91,11 @@ async function handleEditUser(user) {
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'transfers') {
                 await renderTransfersSection();
             }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'loans') { // <--- ATUALIZADO
+                await renderLoansSection();
+            }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 
         } catch (error) {
             showCustomAlert(`Erro ao atualizar usuário: ${error.message}`);
@@ -96,25 +105,30 @@ async function handleEditUser(user) {
 }
 
 async function handleDeleteUser(user) {
-    if (confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Todos os seus depósitos e transferências também serão deletados!`)) {
+    if (confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Todos os seus depósitos, transferências e empréstimos também serão deletados!`)) { // <--- ATUALIZADO
         try {
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             const userDeposits = allDepositsCache.filter(dep => dep.userId === user.id);
             await Promise.all(userDeposits.map(dep => deleteResource('deposits', dep.id)));
 
-            // Deleta todas as transferências onde o usuário é remetente OU destinatário
             const userTransfers = allTransfersCache.filter(t => t.senderId === user.id || t.recipientId === user.id);
             await Promise.all(userTransfers.map(t => deleteResource('transfers', t.id)));
 
+            // ATUALIZADO: Deleta todos os empréstimos onde o usuário é o devedor
+            const userLoans = allLoansCache.filter(loan => loan.userId === user.id);
+            await Promise.all(userLoans.map(loan => deleteResource('loans', loan.id)));
+
             await deleteResource('users', user.id);
-            showCustomAlert(`Usuário ${user.name}, seus depósitos e transferências deletados com sucesso!`);
+            showCustomAlert(`Usuário ${user.name}, seus depósitos, transferências e empréstimos deletados com sucesso!`); // <--- ATUALIZADO
 
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             const userCardElement = document.querySelector(`.user-card[data-user-id="${user.id}"]`);
             if (userCardElement) {
@@ -126,6 +140,12 @@ async function handleDeleteUser(user) {
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'transfers') {
                 await renderTransfersSection();
             }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'loans') { // <--- ATUALIZADO
+                await renderLoansSection();
+            }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+
         } catch (error) {
             showCustomAlert('Erro ao deletar usuário. Verifique o console.');
             console.error('Erro ao deletar usuário:', error);
@@ -143,6 +163,7 @@ async function handleEditDeposit(deposit) {
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             if (Object.keys(updatedFields).length === 0) {
                 showCustomAlert('Nenhuma alteração foi feita.');
@@ -158,8 +179,6 @@ async function handleEditDeposit(deposit) {
             const oldDepositValue = originalDeposit.value;
             const newDepositValue = updatedFields.value !== undefined ? updatedFields.value : oldDepositValue;
 
-            let updatedDeposit = null;
-
             if (updatedFields.userId && updatedFields.userId !== originalDeposit.userId) {
                 const newRecipientUser = findUserById(updatedFields.userId);
                 if (!newRecipientUser) {
@@ -173,7 +192,7 @@ async function handleEditDeposit(deposit) {
                 newRecipientUser.capital = (newRecipientUser.capital || 0) + newDepositValue;
                 await updateResource('users', newRecipientUser.id, { capital: newRecipientUser.capital });
 
-                updatedDeposit = await updateResource('deposits', depositId, updatedFields);
+                await updateResource('deposits', depositId, updatedFields);
                 showCustomAlert(`Depósito de ${newRecipientUser.name} transferido e atualizado com sucesso!`);
 
             } else {
@@ -183,17 +202,20 @@ async function handleEditDeposit(deposit) {
                     await updateResource('users', oldRecipientUser.id, { capital: oldRecipientUser.capital });
                     showCustomAlert(`Capital de ${oldRecipientUser.name} ajustado em R$ ${valueDifference.toFixed(2)}.`);
                 }
-                updatedDeposit = await updateResource('deposits', depositId, updatedFields);
+                await updateResource('deposits', depositId, updatedFields);
                 showCustomAlert(`Depósito de ${oldRecipientUser.name} atualizado com sucesso!`);
             }
 
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
             await renderDepositsSection();
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 
         } catch (error) {
             showCustomAlert(`Erro ao atualizar depósito: ${error.message}`);
@@ -208,6 +230,7 @@ async function handleDeleteDeposit(deposit) {
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             const recipientUser = findUserById(deposit.userId);
             if (!recipientUser) {
@@ -228,6 +251,8 @@ async function handleDeleteDeposit(deposit) {
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
+
             const depositCardElement = document.querySelector(`.deposit-card[data-deposit-id="${deposit.id}"]`);
             if (depositCardElement) {
                 depositCardElement.remove();
@@ -235,6 +260,9 @@ async function handleDeleteDeposit(deposit) {
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+
         } catch (error) {
             showCustomAlert(`Erro ao deletar depósito. Verifique o console.`);
             console.error('Erro ao deletar depósito:', error);
@@ -250,6 +278,7 @@ async function handleDeleteDeposit(deposit) {
 async function handleEditTransfer(transfer) {
     await loadAndCacheAllUsers();
     await loadAndCacheAllTransfers();
+    await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
     const senderUser = findUserById(transfer.senderId);
     const recipientUser = findUserById(transfer.recipientId);
@@ -271,6 +300,7 @@ async function handleEditTransfer(transfer) {
         try {
             await loadAndCacheAllUsers();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             if (Object.keys(updatedFields).length === 0) {
                 showCustomAlert('Nenhuma alteração foi feita.');
@@ -291,20 +321,16 @@ async function handleEditTransfer(transfer) {
             let currentSenderUser = oldSenderUser;
             let currentRecipientUser = oldRecipientUser;
 
-            // Se o remetente ou destinatário forem alterados na edição,
-            // ou se o valor da transferência for alterado, o capital precisa ser ajustado.
             const senderIdChanged = updatedFields.senderId && updatedFields.senderId !== originalTransfer.senderId;
             const recipientIdChanged = updatedFields.recipientId && updatedFields.recipientId !== originalTransfer.recipientId;
             const valueChanged = newTransferValue !== oldTransferValue;
 
             // Lógica para estornar o valor do remetente original e destinatário original
             if (senderIdChanged || valueChanged) {
-                // Remove o valor da transferência original do remetente original
                 oldSenderUser.capital = (oldSenderUser.capital || 0) + oldTransferValue;
                 await updateResource('users', oldSenderUser.id, { capital: oldSenderUser.capital });
             }
             if (recipientIdChanged || valueChanged) {
-                // Estorna o valor da transferência original para o destinatário original
                 oldRecipientUser.capital = (oldRecipientUser.capital || 0) - oldTransferValue;
                 await updateResource('users', oldRecipientUser.id, { capital: oldRecipientUser.capital });
             }
@@ -320,11 +346,9 @@ async function handleEditTransfer(transfer) {
                 if (!currentRecipientUser) { showCustomAlert('Erro: Novo destinatário não encontrado.'); return; }
             }
             
-            // Aplica o novo valor ao remetente atual
             currentSenderUser.capital = (currentSenderUser.capital || 0) - newTransferValue;
             await updateResource('users', currentSenderUser.id, { capital: currentSenderUser.capital });
 
-            // Aplica o novo valor ao destinatário atual
             currentRecipientUser.capital = (currentRecipientUser.capital || 0) + newTransferValue;
             await updateResource('users', currentRecipientUser.id, { capital: currentRecipientUser.capital });
             
@@ -332,11 +356,16 @@ async function handleEditTransfer(transfer) {
             showCustomAlert('Transferência atualizada com sucesso!');
 
             await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
             await renderTransfersSection();
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+
         } catch (error) {
             showCustomAlert(`Erro ao atualizar transferência: ${error.message}`);
             console.error('Erro ao atualizar transferência:', error);
@@ -348,7 +377,9 @@ async function handleDeleteTransfer(transfer) {
     if (confirm(`Tem certeza que deseja deletar a transferência de R$ ${transfer.value.toFixed(2)}? O capital será estornado.`)) {
         try {
             await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             const senderUser = findUserById(transfer.senderId);
             const recipientUser = findUserById(transfer.recipientId);
@@ -372,7 +403,9 @@ async function handleDeleteTransfer(transfer) {
             showCustomAlert('Transferência deletada com sucesso!');
 
             await loadAndCacheAllUsers();
+            await loadAndCacheAllDeposits();
             await loadAndCacheAllTransfers();
+            await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
             const transferCardElement = document.querySelector(`.transfer-card[data-transfer-id="${transfer.id}"]`);
             if (transferCardElement) {
@@ -381,9 +414,131 @@ async function handleDeleteTransfer(transfer) {
             if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
                 await renderUsersSection();
             }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+            
         } catch (error) {
             showCustomAlert(`Erro ao deletar transferência. Verifique o console.`);
             console.error('Erro ao deletar transferência:', error);
+        }
+    }
+}
+
+// =========================================================================
+// LÓGICA DE MANIPULAÇÃO DE AÇÕES (Editar e Deletar) ----- EMPRÉSTIMOS (NOVO)
+// =========================================================================
+
+async function handleEditLoan(loan) {
+    await loadAndCacheAllUsers();
+    await loadAndCacheAllLoans();
+
+    const user = findUserById(loan.userId);
+    if (!user) {
+        showCustomAlert('Erro: Usuário do empréstimo não encontrado no cache. Não é possível editar.');
+        return;
+    }
+
+    const loanForForm = {
+        ...loan,
+        email: user.email,
+        name: user.name,
+    };
+
+    setupLoanEditForm(loanForForm, async (loanId, updatedFields, originalLoan) => {
+        try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllLoans();
+
+            if (Object.keys(updatedFields).length === 0) {
+                showCustomAlert('Nenhuma alteração foi feita.');
+                return;
+            }
+
+            const oldUser = findUserById(originalLoan.userId);
+            if (!oldUser) {
+                showCustomAlert('Erro: Usuário original do empréstimo não encontrado.');
+                return;
+            }
+
+            const oldTotalValue = originalLoan.totalValue;
+            const newTotalValue = updatedFields.totalValue !== undefined ? updatedFields.totalValue : oldTotalValue;
+
+            let currentUser = oldUser;
+
+            const userIdChanged = updatedFields.userId && updatedFields.userId !== originalLoan.userId;
+            const totalValueChanged = newTotalValue !== oldTotalValue;
+
+            // 1. Estorna o valor do empréstimo ORIGINAL do usuário ORIGINAL
+            if (userIdChanged || totalValueChanged) {
+                oldUser.capital = (oldUser.capital || 0) - oldTotalValue;
+                await updateResource('users', oldUser.id, { capital: oldUser.capital });
+            }
+
+            // 2. Aplica o novo valor ao usuário atual
+            if (userIdChanged) {
+                currentUser = findUserById(updatedFields.userId);
+                if (!currentUser) { showCustomAlert('Erro: Novo usuário do empréstimo não encontrado.'); return; }
+            }
+            
+            currentUser.capital = (currentUser.capital || 0) + newTotalValue;
+            await updateResource('users', currentUser.id, { capital: currentUser.capital });
+            
+            await updateResource('loans', loanId, updatedFields);
+            showCustomAlert('Empréstimo atualizado com sucesso!');
+
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllLoans();
+            await renderLoansSection();
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
+                await renderUsersSection();
+            }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+
+        } catch (error) {
+            showCustomAlert(`Erro ao atualizar empréstimo: ${error.message}`);
+            console.error('Erro ao atualizar empréstimo:', error);
+        }
+    });
+}
+
+async function handleDeleteLoan(loan) {
+    if (confirm(`Tem certeza que deseja deletar o empréstimo de R$ ${loan.totalValue.toFixed(2)}? O capital será ajustado.`)) {
+        try {
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllLoans();
+
+            const user = findUserById(loan.userId);
+            if (!user) {
+                showCustomAlert('Erro: Usuário do empréstimo não encontrado no cache. Ajuste de capital impossível.');
+                return;
+            }
+
+            const loanValue = loan.totalValue || 0;
+
+            user.capital = (user.capital || 0) - loanValue; // Remove o valor do empréstimo do capital do usuário
+            await updateResource('users', user.id, { capital: user.capital });
+            showCustomAlert(`Capital de ${user.name} ajustado em R$ ${loanValue.toFixed(2)} (valor do empréstimo removido).`);
+
+            await deleteResource('loans', loan.id);
+            showCustomAlert('Empréstimo deletado com sucesso!');
+
+            await loadAndCacheAllUsers();
+            await loadAndCacheAllLoans();
+
+            const loanCardElement = document.querySelector(`.loan-card[data-loan-id="${loan.id}"]`);
+            if (loanCardElement) {
+                loanCardElement.remove();
+            }
+            if (trasactions.querySelector('#transactionsContentWrapper').dataset.activeSection === 'users') {
+                await renderUsersSection();
+            }
+
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+
+        } catch (error) {
+            showCustomAlert(`Erro ao deletar empréstimo. Verifique o console.`);
+            console.error('Erro ao deletar empréstimo:', error);
         }
     }
 }
@@ -442,6 +597,8 @@ async function renderUsersSection() {
         e.preventDefault();
         hideTransactionSection(transactionsContentWrapper);
     });
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 }
 
 async function renderDepositsSection() {
@@ -499,6 +656,8 @@ async function renderDepositsSection() {
         e.preventDefault();
         hideTransactionSection(transactionsContentWrapper);
     });
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 }
 
 async function renderTransfersSection() {
@@ -558,6 +717,68 @@ async function renderTransfersSection() {
         e.preventDefault();
         hideTransactionSection(transactionsContentWrapper);
     });
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
+}
+
+// <--- NOVO: renderLoansSection
+async function renderLoansSection() {
+    let transactionsContentWrapper = trasactions.querySelector('#transactionsContentWrapper');
+    if (!transactionsContentWrapper) {
+        transactionsContentWrapper = document.createElement('section');
+        transactionsContentWrapper.id = 'transactionsContentWrapper';
+        transactionsContentWrapper.classList.add('transactions-content-section');
+        trasactions.append(transactionsContentWrapper);
+    }
+
+    transactionsContentWrapper.innerHTML = '';
+    transactionsContentWrapper.classList.remove('transactions-section-active');
+
+    const subtitle = createH(2, 'Gerenciamento de Empréstimos', 'subtitle-loans-transactions', 'animated-element');
+    transactionsContentWrapper.append(subtitle);
+
+    const loansGridContainer = createDiv('loans-grid-container', 'animated-element');
+
+    try {
+        const loans = allLoansCache;
+        if (loans.length === 0) {
+            const noLoansMessage = createP('Nenhum empréstimo realizado ainda.', 'no-loan-message', 'animated-element');
+            loansGridContainer.append(noLoansMessage);
+        } else {
+            loans.forEach(loan => {
+                const user = findUserById(loan.userId);
+                if (user) {
+                    const loanCard = createLoanCardElement(loan, user, handleEditLoan, handleDeleteLoan);
+                    loansGridContainer.append(loanCard);
+                } else {
+                    console.warn(`Usuário com ID ${loan.userId} para o empréstimo ${loan.id} não encontrado.`);
+                }
+            });
+        }
+    } catch (error) {
+        showCustomAlert('Erro ao carregar empréstimos. Verifique o console.');
+        console.error('Erro ao carregar empréstimos:', error);
+        const errorMessage = createP('Não foi possível carregar os empréstimos. Tente novamente mais tarde.', 'error-message', 'animated-element');
+        loansGridContainer.append(errorMessage);
+    }
+
+    transactionsContentWrapper.append(loansGridContainer);
+
+    const buttonsContainer = createDiv('btns-transactions-group', 'animated-element');
+    const collectSectionButton = createButton('Recolher Seção', 'collectSectionTransactions', 'animated-element');
+    buttonsContainer.append(collectSectionButton);
+    transactionsContentWrapper.append(buttonsContainer);
+
+    requestAnimationFrame(() => {
+        transactionsContentWrapper.classList.add('transactions-section-active');
+    });
+
+    collectSectionButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideTransactionSection(transactionsContentWrapper);
+    });
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 }
 
 
@@ -568,6 +789,9 @@ async function renderTransfersSection() {
     await loadAndCacheAllUsers();
     await loadAndCacheAllDeposits();
     await loadAndCacheAllTransfers();
+    await loadAndCacheAllLoans(); // <--- ATUALIZADO
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 })();
 
 
@@ -605,6 +829,7 @@ export const display = displayTransactions.addEventListener('click', async (ev) 
     await loadAndCacheAllUsers();
     await loadAndCacheAllDeposits();
     await loadAndCacheAllTransfers();
+    await loadAndCacheAllLoans(); // <--- ATUALIZADO
 
     if (currentSelection === 'users') {
         await renderUsersSection();
@@ -612,6 +837,8 @@ export const display = displayTransactions.addEventListener('click', async (ev) 
         await renderDepositsSection();
     } else if (currentSelection === 'transfers') {
         await renderTransfersSection();
+    } else if (currentSelection === 'loans') { // <--- NOVO
+        await renderLoansSection();
     }
     else {
         showCustomAlert('Por favor, selecione uma opção válida para exibir.');
@@ -619,4 +846,6 @@ export const display = displayTransactions.addEventListener('click', async (ev) 
             hideTransactionSection(transactionsContentWrapper);
         }
     }
+
+    updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO
 });

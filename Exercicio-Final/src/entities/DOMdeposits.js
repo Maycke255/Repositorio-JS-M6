@@ -1,6 +1,6 @@
 // DOMdeposit.js
 
-import { showCustomAlert } from "../app.js";
+import { showCustomAlert, updateBankTotalDisplay } from "../app.js";
 import { Deposit } from "../controller/Deposit.js";
 import { depositSct, displayDepositArea } from "../entities/elements.js";
 
@@ -102,6 +102,7 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
     emailAccountInput.addEventListener('blur', async () => {
         const emailValue = emailAccountInput.value.trim();
         if (emailValue) {
+            await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
             const user = findUserByEmail(emailValue); // Usa a função de utils.js
             if (user) {
                 accountNameInput.value = user.name;
@@ -191,6 +192,7 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
         }
 
         try {
+            await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
             const recipientUser = findUserByEmail(emailValue); // Usa a função de utils.js
 
             if (!recipientUser) {
@@ -226,6 +228,7 @@ export const depositArea = displayDepositArea.addEventListener('click', (ev) => 
             // 4. ATUALIZA OS CACHES após a criação de um novo depósito e a atualização de capital
             await loadAndCacheAllUsers();
             await loadAndCacheAllDeposits();
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO após um depósito
 
         } catch (error) {
             showCustomAlert('Ocorreu um erro durante a verificação ou processamento do depósito. Verifique o console.');

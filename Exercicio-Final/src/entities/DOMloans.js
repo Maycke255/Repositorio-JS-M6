@@ -1,21 +1,20 @@
+// DOMloans.js
+
 import { displayLoansArea, loansSct } from "../entities/elements.js";
-import { showCustomAlert } from "../app.js";
+import { showCustomAlert, updateBankTotalDisplay } from "../app.js";
 import { Loan } from "../controller/Loan.js";
 
+// Importa funções do utils.js para busca de usuários e caches
+import { findUserByEmail, loadAndCacheAllUsers, loadAndCacheAllLoans } from "../../services/utils/utils.js";
+
+// Regex para validação de email (mantida localmente como no seu arquivo, se preferir ou importamos do utils)
+// No entanto, para consistência, usaremos a regex no local da validação.
+// const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+
+
 // ========================= FUNÇÃO PARA BUSCAR USUÁRIO POR E-MAIL ========================= //
-async function findUserByEmail(email) {
-    try {
-        const response = await fetch(`http://localhost:3000/users?email=${encodeURIComponent(email)}`); // <<-- CORRIGIDO: 'email' na query
-        if (!response.ok) {
-            throw new Error(`Erro ao buscar usuário por e-mail: ${response.status} - ${response.statusText}`);
-        }
-        const users = await response.json();
-        return users.length > 0 ? users[0] : null;
-    } catch (error) {
-        console.error('Erro ao buscar usuário:', error);
-        throw error;
-    }
-}
+// REMOVIDA: Agora importamos findUserByEmail do utils.js, que usa o cache.
+
 
 // ========================= LÓGICA PARA O CUSTOM SELECT (REUTILIZADA) ========================= //
 // Esta função será chamada para inicializar o custom select dinamicamente
@@ -45,7 +44,6 @@ function setupCustomSelect(nativeSelect, customSelectWrapper) {
 
     selectSelected.addEventListener("click", function(e) {
         e.stopPropagation();
-        // Não é necessário closeAllSelect aqui, pois só teremos um custom select ativo por vez na seção.
         this.classList.toggle("select-arrow-active");
         selectItems.classList.toggle("select-hide");
     });
@@ -66,12 +64,10 @@ function setupCustomSelect(nativeSelect, customSelectWrapper) {
             selectSelected.classList.remove("select-arrow-active");
             selectItems.classList.add("select-hide");
 
-            // Dispara um evento 'change' no select nativo para que outros listeners possam reagir, se necessário
             nativeSelect.dispatchEvent(new Event('change'));
         });
     }
 
-    // Fecha o custom select quando o usuário clica em qualquer lugar fora dele (global)
     document.addEventListener("click", function(e) {
         if (!customSelectWrapper.contains(e.target)) {
             selectSelected.classList.remove("select-arrow-active");
@@ -80,7 +76,7 @@ function setupCustomSelect(nativeSelect, customSelectWrapper) {
     });
 }
 
-// Função para esconder e remover a seção de emprestimos
+// Função para esconder e remover a seção de emprestimos (MANTIDA EXATAMENTE COMO VOCÊ TEM)
 function hideLoansSection(wrapperElement) {
     if (!wrapperElement || !wrapperElement.classList.contains('loans-section-active')) {
         return;
@@ -103,14 +99,22 @@ function hideLoansSection(wrapperElement) {
 
 // ========================= EVENT LISTENERS DA ÁREA DE EMPRESTIMOS ========================= //
 export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
-   ev.preventDefault();
+    ev.preventDefault();
 
     let loansContentWrapper = loansSct.querySelector('#loansContentWrapper');
 
+    // MANTIDO: Sua lógica de verificação para toggle
+    if (loansContentWrapper && loansContentWrapper.classList.contains('loans-section-active')) {
+        console.log('Seção de emprestimos já está visível ou sendo animada.');
+        hideLoansSection(loansContentWrapper); // Recolhe se já estiver ativa
+        return;
+    }
+    // MANTIDO: Sua verificação de innerHTML para o caso de estar vazia mas ainda ativa (com a classe)
     if (loansContentWrapper && loansContentWrapper.innerHTML !== '') {
         console.log('Seção de emprestimos já está visível ou sendo animada.');
         return;
     }
+
 
     if (!loansContentWrapper) {
         loansContentWrapper = document.createElement('form');
@@ -134,12 +138,12 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     const labelDate = document.createElement('label');
     labelDate.htmlFor = 'dateLoan';
-    labelDate.classList = 'date-label';
+    labelDate.classList = 'date-label'; // MANTIDO
     labelDate.textContent = 'Escolha uma data para programar que dia o emprestimo sera feito, ou faça o emprestimo hoje mesmo' + 
     'clicando no botão "Emprestimo Hoje".';
 
     const groupDateBtns = document.createElement('div');
-    groupDateBtns.classList = 'group-date-btns'; // Grupo de botões da data
+    groupDateBtns.classList = 'group-date-btns'; // MANTIDO
 
     const dateLoanInput = document.createElement('input');
     dateLoanInput.type = 'date';
@@ -161,7 +165,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     const labelNameLoan = document.createElement('label');
     labelNameLoan.htmlFor = 'nameLoan';
-    labelNameLoan.classList = 'name-loan';
+    labelNameLoan.classList = 'name-loan'; // MANTIDO
     labelNameLoan.textContent = 'Nome da conta que fara o emprestimo (nome do úsuario que irá receber o emprestimo).';
 
     const nameLoanInput = document.createElement('input');
@@ -169,10 +173,13 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     nameLoanInput.id = 'nameLoan';
     nameLoanInput.required = true;
     nameLoanInput.name = 'loanName';
+    nameLoanInput.readOnly = true; // ADICIONADO: Preenchimento automático
+    nameLoanInput.placeholder = 'Preenchido automaticamente ao inserir o e-mail';
+
 
     const labelEmailLoan = document.createElement('label');
     labelEmailLoan.htmlFor = 'emailLoan';
-    labelEmailLoan.classList = 'email-loan-label';
+    labelEmailLoan.classList = 'email-loan-label'; // MANTIDO
     labelEmailLoan.textContent = 'Informe o e-mail de quem esta pegando o emprestimo, no caso o email do nome do usuario informado acima' +
     ', esse e-mail serve apenas como identificador (precisa conter @, gmail e .com).';
 
@@ -187,27 +194,27 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     const loanDefinition = document.createElement('div');
     loanDefinition.className = 'loan-definition-group';
     loanDefinition.classList.add('animated-element');
-    
+
     const loanGroupValue = document.createElement('div');
     loanGroupValue.className = 'loan-value-group';
 
     const labelValueLoan = document.createElement('label');
     labelValueLoan.htmlFor = 'valueLoan';
-    labelValueLoan.classList = 'value-loan-label';
+    labelValueLoan.classList = 'value-loan-label'; // MANTIDO
     labelValueLoan.textContent = 'Informe o valor do emprestimo.';
 
     const valueLoanInput = document.createElement('input');
-    valueLoanInput.type = 'number'; // <<-- Sugestão: type="number" para melhor UX
+    valueLoanInput.type = 'number';
     valueLoanInput.id = 'valueLoan';
     valueLoanInput.required = true;
     valueLoanInput.name = 'value';
-    valueLoanInput.min = '0.01'; // Mínimo
-    valueLoanInput.step = 'any'; // Permite decimais se o tipo for number
+    valueLoanInput.min = '0.01';
+    valueLoanInput.step = 'any';
 
     loanGroupValue.append(labelValueLoan, valueLoanInput);
 
     const loanInstallmentsGroup = document.createElement('div');
-    loanInstallmentsGroup.className = 'loan-installments-group'; // Usando este para envolver label e custom select
+    loanInstallmentsGroup.className = 'loan-installments-group'; // MANTIDO
 
     // --- CUSTOM SELECT PARA PARCELAS ---
     const customSelectWrapperInstallments = document.createElement('div');
@@ -215,15 +222,14 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     const labelCustomSelectWrapperInstallments = document.createElement('label');
     labelCustomSelectWrapperInstallments.htmlFor = 'loanInstallments';
-    labelCustomSelectWrapperInstallments.classList = 'installments-loan-label';
+    labelCustomSelectWrapperInstallments.classList = 'installments-loan-label'; // MANTIDO
     labelCustomSelectWrapperInstallments.textContent = 'Informe a quantidade de parcelas que sera dividido o emprestimo.';
 
     const nativeSelectInstallments = document.createElement('select');
     nativeSelectInstallments.name = 'installments';
     nativeSelectInstallments.id = 'loanInstallments';
-    nativeSelectInstallments.style.display = 'none'; // Esconde o select nativo
+    nativeSelectInstallments.style.display = 'none';
 
-    // Opções de parcelas
     const installmentOptions = ['2x', '4x', '6x', '8x', '10x', '12x', '24x', '32x', '48x'];
     const placeholderOption = document.createElement('option');
     placeholderOption.value = '';
@@ -242,18 +248,18 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     installmentOptions.forEach(opt => {
         const optionNative = document.createElement('option');
-        optionNative.value = opt.replace('x', ''); // Valor numérico para o nativo
+        optionNative.value = opt.replace('x', '');
         optionNative.textContent = opt;
         nativeSelectInstallments.append(optionNative);
 
         const optionCustom = document.createElement('div');
-        optionCustom.dataset.value = opt.replace('x', ''); // Valor numérico para o custom
+        optionCustom.dataset.value = opt.replace('x', '');
         optionCustom.textContent = opt;
         selectItemsInstallments.append(optionCustom);
     });
 
     customSelectWrapperInstallments.append(nativeSelectInstallments, selectSelectedInstallments, selectItemsInstallments);
-    loanInstallmentsGroup.append(labelCustomSelectWrapperInstallments, customSelectWrapperInstallments); // <<-- Anexa a label e o wrapper ao group
+    loanInstallmentsGroup.append(labelCustomSelectWrapperInstallments, customSelectWrapperInstallments);
 
     // --- INPUT PARA TAXA ---
     const loanGroupFee = document.createElement('div');
@@ -261,8 +267,8 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
 
     const labelFeeLoan = document.createElement('label');
     labelFeeLoan.htmlFor = 'feeLoan';
-    labelFeeLoan.classList = 'fee-loan-label';
-    labelFeeLoan.textContent = 'Informe a taxa de juros anual (%)'; // Alterado para %
+    labelFeeLoan.classList = 'fee-loan-label'; // MANTIDO
+    labelFeeLoan.textContent = 'Informe a taxa de juros anual (%)';
 
     const feeLoanInput = document.createElement('input');
     feeLoanInput.type = 'number';
@@ -271,11 +277,11 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     feeLoanInput.name = 'feePercentage';
     feeLoanInput.min = '0';
     feeLoanInput.step = '0.01';
-    feeLoanInput.value = '5'; // Valor padrão para exemplo
+    feeLoanInput.value = '5';
 
     loanGroupFee.append(labelFeeLoan, feeLoanInput);
 
-    loanDefinition.append(loanGroupValue, loanInstallmentsGroup, loanGroupFee); // <<-- Correto: Anexa ao loanDefinition
+    loanDefinition.append(loanGroupValue, loanInstallmentsGroup, loanGroupFee);
 
     const buttonsLoans = document.createElement('div');
     buttonsLoans.className = 'btns-loans-group';
@@ -292,7 +298,7 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     collectSectionButton.type = 'button';
 
     buttonsLoans.append(setLoanButton, collectSectionButton);
-    // <<-- CORREÇÃO PRINCIPAL AQUI: Um único append para todos os elementos na ordem correta
+    
     loansContentWrapper.append(
         subtitle,
         dateGroup,
@@ -302,13 +308,34 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
     );
 
     requestAnimationFrame(() => {
-        loansContentWrapper.classList.add('loans-section-active');
+        loansContentWrapper.classList.add('loans-section-active'); // MANTIDO
     });
 
-    // Inicializa o custom select após os elementos serem criados e anexados
     setupCustomSelect(nativeSelectInstallments, customSelectWrapperInstallments);
 
     // --- AGORA, EVENT LISTENERS AQUI, APÓS A CRIAÇÃO DOS ELEMENTOS ---
+
+    // Listener para preencher o nome do usuário de empréstimo automaticamente
+    emailLoanInput.addEventListener('blur', async () => {
+        const emailValue = emailLoanInput.value.trim();
+        if (emailValue) {
+            await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
+            const user = findUserByEmail(emailValue);
+            if (user) {
+                nameLoanInput.value = user.name;
+                nameLoanInput.classList.remove('error');
+            } else {
+                nameLoanInput.value = '';
+                showCustomAlert(`O e-mail "${emailValue}" do usuário não está cadastrado.`);
+                emailLoanInput.classList.add('error');
+                emailLoanInput.focus();
+                setTimeout(() => emailLoanInput.classList.remove('error'), 2200);
+            }
+        } else {
+            nameLoanInput.value = '';
+        }
+    });
+
     todayDateButton.addEventListener('click', (ev) => {
         ev.preventDefault();
         const today = new Date();
@@ -322,23 +349,20 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
         ev.preventDefault();
 
         const dateValue = dateLoanInput.value.trim();
-        const nameValue = nameLoanInput.value.trim();
-        const emailValue = emailLoanInput.value.trim();
+        const emailValue = emailLoanInput.value.trim(); // Pegamos o e-mail para buscar o userId
         const loanValue = parseFloat(valueLoanInput.value);
-        const installments = parseInt(nativeSelectInstallments.value); // Pega o valor numérico das parcelas
-        const feePercentage = parseFloat(feeLoanInput.value); // Taxa em porcentagem
+        const installments = parseInt(nativeSelectInstallments.value);
+        const feePercentage = parseFloat(feeLoanInput.value);
 
-        let firstErrorInput = null; // <<-- CORRIGIDO: Declaração da variável
-
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+        let firstErrorInput = null;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/; // Mantida localmente
 
         if (!dateValue) { showCustomAlert('Por favor, selecione a data do empréstimo.'); firstErrorInput = dateLoanInput; }
-        else if (!nameValue) { showCustomAlert('Por favor, preencha o nome do usuário que fará o empréstimo.'); firstErrorInput = nameLoanInput; }
         else if (!emailValue) { showCustomAlert('Por favor, preencha o e-mail do usuário.'); firstErrorInput = emailLoanInput; }
         else if (isNaN(loanValue) || loanValue <= 0) { 
             showCustomAlert('Por favor, informe um valor principal de empréstimo válido e positivo.'); firstErrorInput = valueLoanInput; }
         else if (isNaN(installments) || installments <= 0) { showCustomAlert('Por favor, selecione o número de parcelas.'); 
-            firstErrorInput = customSelectWrapperInstallments.querySelector('.select-selected'); } // Aponta para o custom select
+            firstErrorInput = customSelectWrapperInstallments.querySelector('.select-selected'); }
         else if (isNaN(feePercentage) || feePercentage < 0) { showCustomAlert('Por favor, informe uma taxa de juros válida (não negativa).'); 
             firstErrorInput = feeLoanInput; }
 
@@ -377,8 +401,8 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
         }
 
         try {
-            // 5. Verificação de existência do usuário
-            const loanUser = await findUserByEmail(emailValue);
+            await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
+            const loanUser = findUserByEmail(emailValue); // Busca o usuário pelo e-mail
 
             if (!loanUser) {
                 showCustomAlert(`Usuário com e-mail "${emailValue}" não encontrado. Por favor, verifique.`);
@@ -389,10 +413,10 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
             }
 
             // Calcula os valores do empréstimo
-            const totalAmountToPay = loanValue * (1 + (feePercentage / 100)); // Valor total a ser pago (principal + juros)
-            const installmentAmount = totalAmountToPay / installments; // Valor de cada parcela
+            const totalAmountToPay = loanValue * (1 + (feePercentage / 100));
+            const installmentAmount = totalAmountToPay / installments;
 
-            const newLoanUserCapital = loanUser.capital + loanValue;
+            const newLoanUserCapital = (loanUser.capital || 0) + loanValue;
 
             await fetch(`http://localhost:3000/users/${loanUser.id}`, {
                 method: 'PATCH',
@@ -400,11 +424,10 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
                 body: JSON.stringify({ capital: newLoanUserCapital })
             });
 
-            //Salvando o emprestimo no banco
+            // Salvando o emprestimo no banco com o userId
             const newLoan = new Loan(
                 dateValue,
-                nameValue,
-                emailValue,
+                loanUser.id, // <--- AQUI: Passamos o ID do usuário!
                 loanValue,
                 installments,
                 feePercentage,
@@ -420,16 +443,21 @@ export const loansArea = displayLoansArea.addEventListener('click', (ev) => {
             nameLoanInput.value = '';
             emailLoanInput.value = '';
             valueLoanInput.value = '';
-            nativeSelectInstallments.value = ''; // Limpa o select nativo
-            selectSelectedInstallments.innerHTML = placeholderOption.textContent; // Reseta o texto do custom select
+            nativeSelectInstallments.value = '';
+            selectSelectedInstallments.innerHTML = placeholderOption.textContent;
             selectItemsInstallments.querySelectorAll('.same-as-selected').forEach(el => el.classList.remove('same-as-selected'));
-            feeLoanInput.value = '5'; // Reseta para o valor padrão
+            feeLoanInput.value = '5';
+
+            await loadAndCacheAllUsers(); // Atualiza o cache de usuários (capital mudou)
+            await loadAndCacheAllLoans(); // Atualiza o cache de empréstimos (novo empréstimo)
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO após um depósito
+
         } catch (error) {
             showCustomAlert('Ocorreu um erro durante o processamento do empréstimo. Verifique o console para mais detalhes.');
             console.error(`Erro detalhado durante o processamento do empréstimo:`, error);
         }
     });
-    // --- LÓGICA DO BOTÃO RECOLHER SEÇÃO --- <<-- CORRIGIDO: FORA do listener de submit
+    
     collectSectionButton.addEventListener('click', (e) => {
         e.preventDefault();
         hideLoansSection(loansContentWrapper);

@@ -2,7 +2,7 @@
 
 import { displayTransfersArea, transfersSct } from "./elements.js";
 import { Transfer } from "../controller/Transfer.js";
-import { showCustomAlert } from "../app.js";
+import { showCustomAlert, updateBankTotalDisplay } from "../app.js";
 
 // Importa funções do utils.js
 import { findUserByEmail, loadAndCacheAllUsers, loadAndCacheAllTransfers } from "../../services/utils/utils.js";
@@ -317,6 +317,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
         
         // 6. Verificação de existência dos usuários e saldo (operação assíncrona)
         try {
+            await loadAndCacheAllUsers();
             await loadAndCacheAllUsers(); // Garante que o cache de usuários está atualizado
 
             const senderUser = findUserByEmail(emailSender);
@@ -393,6 +394,7 @@ export const trasnferArea = displayTransfersArea.addEventListener('click', (ev) 
             // ATUALIZA OS CACHES após a criação de uma nova transferência e a atualização de capital
             await loadAndCacheAllUsers();
             await loadAndCacheAllTransfers();
+            updateBankTotalDisplay(); // <--- ATUALIZA O VALOR TOTAL DO BANCO após um depósito
 
         } catch (error) {
             showCustomAlert('Ocorreu um erro durante a verificação ou processamento da transferência. Verifique o console.');

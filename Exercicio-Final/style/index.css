@@ -27,7 +27,8 @@
 #nameAccount, #emailAccount, #valueDeposit,
 #nameLoan, #emailLoan, #valueLoan, #feeLoan, #newPasswordUser, #newEmailUser, #newNameUser, 
 #newNameDeposit, #newEmailDeposit, #newValueDeposit, 
-#editSenderEmail, #editSenderName, #editRecipientEmail, #editRecipientName, #editValueTransfer, #editTransferDate {
+#editSenderEmail, #editSenderName, #editRecipientEmail, #editRecipientName, #editValueTransfer, #editTransferDate,
+#editUserEmail, #editUserName, #editTotalValue, #editInstallments, #editRate, #editLoanDate {
     margin: 1rem 0;
     text-align: left;
     border: 2.5px solid #e5e7ebb9;
